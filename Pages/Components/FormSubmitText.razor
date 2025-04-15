@@ -1,0 +1,58 @@
+﻿@using Serilog;
+@using FormsBoard.Services
+
+@inject IMailService MailService
+@inject IToastService toastService
+
+<div>
+    <p style="text-align:center">Submit Form?</p>
+    <div class="row">
+        <div class="col-md-6" style="text-align:center">
+            <RadzenButton Text="@buttonText" Disabled="@buttonDisabled" Click="Close" Style="margin-bottom: 10px; width:90%" />
+            </div>
+        <div class="col-md-6" style="text-align:center">
+            <RadzenButton Text="Cancel" Click="Cancel" ButtonStyle="ButtonStyle.Secondary" Style="margin-bottom: 10px; width:90%" />
+            </div>
+    </div>
+</div>
+
+@code {
+
+    //<button @onclick="Close" class="btn btn-primary">Submit</button>
+    //<button @onclick="Cancel" class="btn btn-secondary">Cancel</button>
+    [CascadingParameter] BlazoredModalInstance Modal { get; set; }
+
+    [Parameter] public string Subject { get; set; }
+    [Parameter] public string Body { get; set; }
+    [Parameter] public IEnumerable<string> EmailList { get; set; }
+
+    public bool buttonDisabled = false;
+    string buttonText = "Submit";
+
+    async Task Close()
+    {
+        buttonDisabled=true;
+        buttonText="Sending...";
+        await Task.Delay(1);
+        try
+        {
+            MailService.SendEmail(Subject, Body, EmailList);
+
+            await Modal.CloseAsync(ModalResult.Ok($"Form was submitted successfully."));
+            toastService.ShowMessage("Success!", "Form submission successful!");
+
+            Log.Information($"Text Form Submission: \n Subject: {Subject}\n Email: {string.Join(',', EmailList)}");  
+        }
+        catch (Exception e)
+        {
+            string message = e.InnerException == null ? e.Message : e.InnerException.Message;
+            Log.Error($"Text Form Submission:\n Stack Trace: {e.StackTrace}\n Message: {message}\n Subject: {Subject}\n Email: {string.Join(',', EmailList)}");  
+
+            await Modal.CancelAsync();
+            toastService.ShowMessage("ERROR", "Form submission failed to send e-mail. Please try again or contact the server administrator if issues persist.");
+        }
+    }
+
+    async Task Cancel() => await Modal.CancelAsync();
+
+    }

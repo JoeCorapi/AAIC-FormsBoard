@@ -1,0 +1,122 @@
+﻿@using System.IO
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using FormsBoard.Services
+@using iText.Layout;
+@using iText.Layout.Element;
+@using iText.Kernel.Pdf;
+
+@inject IConfiguration Configuration
+@inject IMailService MailService
+@inject IToastService toastService
+
+<FormToast />
+<div style="display:flex">
+    <SfButton CssClass="e-info" @onclick="OnClick">@FormName</SfButton>
+    <SfDialog @ref="@pdfDialog" Target="#target" EnableResize="true" Width="65vw" Height="95vh" Visible="false" ZIndex="15"
+              IsModal="true" Header="@FormName" ShowCloseIcon="true">
+        <DialogEvents OnOpen="OnOpen" OnClose="OnClose" Resizing="@ResizingHandler" />
+        <SfPdfViewerServer DocumentPath="@DocumentPath" Height="92vh" @ref="@viewer" ToolbarSettings="@ToolbarSettings"/>
+        <div class="d-flex justify-content-center" style="padding-top:5px">
+            <Radzen.Blazor.RadzenButton Visible="@submitVisible">
+                <RadzenButton Style="align-content:center" ButtonType="Radzen.ButtonType.Button" Icon="save" Text="Submit" Click="Submit" />
+            </Radzen.Blazor.RadzenButton>
+        </div>
+    </SfDialog>
+</div>
+
+@code {
+    private SfPdfViewerServer viewer;
+    private bool submitVisible = false;
+
+    [Parameter] public string DocumentPath { get; set; }
+    [Parameter] public string FormName { get; set; }
+    [Parameter] public string User { get; set; }
+    [Parameter] public string DistributionList { get; set; }
+    [CascadingParameter] public IModalService Modal { get; set; }
+
+    const string mediaType = "application/pdf";
+
+    private SfDialog pdfDialog;
+
+    public PdfViewerToolbarSettings ToolbarSettings = new PdfViewerToolbarSettings()
+        {
+            ToolbarItems = new List<ToolbarItem>()
+            {
+                ToolbarItem.PageNavigationTool,
+                ToolbarItem.MagnificationTool,
+                ToolbarItem.CommentTool,
+                ToolbarItem.SelectionTool,
+                ToolbarItem.PanTool,
+                ToolbarItem.UndoRedoTool,
+                //ToolbarItem.CommentTool,
+                //ToolbarItem.AnnotationEditTool,
+                ToolbarItem.SearchOption,
+                ToolbarItem.PrintOption,
+                ToolbarItem.DownloadOption,
+            }
+        };
+
+    public void OnClick(MouseEventArgs args)
+    {
+        this.pdfDialog.ShowAsync();
+    }
+
+    public async void OnOpen(BeforeOpenEventArgs args)
+    {
+        await viewer.LoadAsync(DocumentPath, null);
+        await Task.Delay(1000);
+        submitVisible = true;
+        StateHasChanged();
+    }
+
+    public async void OnClose()
+    {
+        await viewer.UnloadAsync();
+        await pdfDialog.HideAsync();
+        submitVisible = false;
+        GC.Collect();
+    }
+
+    private void ResizingHandler()
+    {
+        viewer.UpdateViewerContainerAsync();
+    }
+
+    async void Submit()
+    {
+        string subject = $"{FormName} submission from {User}";
+        string body = WriteEMailBody();
+        byte[] data = await viewer.GetDocumentAsync();
+        string fileName = $"{FormName}_{User}_{DateTime.Now.ToString("yyyy-MM-dd-HHmmss")}.pdf";
+        List<string> emailList = Configuration.GetSection(DistributionList).Get<List<string>>();
+
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(FormSubmitFile.Subject), subject);
+        parameters.Add(nameof(FormSubmitFile.Body), body);
+        parameters.Add(nameof(FormSubmitFile.Data), data);
+        parameters.Add(nameof(FormSubmitFile.FilePath), DocumentPath);
+        parameters.Add(nameof(FormSubmitFile.FileName), fileName);
+        parameters.Add(nameof(FormSubmitFile.MediaType), mediaType);
+        parameters.Add(nameof(FormSubmitFile.EmailList), emailList);
+
+        var formModal = Modal.Show<FormSubmitFile>("Confirm Submission", parameters);
+        var confirmResult = await formModal.Result;
+
+        if (confirmResult.Cancelled)
+        {
+        }
+        else
+        {
+            OnClose();
+        }
+    }
+
+    private string WriteEMailBody()
+    {
+        // TODO: PDF Html body message
+        return "Placeholder email attachment text.";
+    }
+}

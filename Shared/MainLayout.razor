@@ -1,0 +1,25 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <div class="main">
+        <div class="top-row px-4 auth">
+            <div class="main-header" style="height:inherit">
+                <img style="object-fit:contain; height:inherit; " src="Images/allergyasc_logo.png" aria-hidden="true" />
+                <span class="header-title">Welcome to the Form Board</span>
+            </div>
+
+            <div class="d-flex align-items-center ms-auto auth-container">
+                <LoginDisplay />
+                <SignOutButton />
+            </div>
+        </div>
+
+        <div class="content px-4">
+            @Body
+        </div>
+    </div>
+</div>

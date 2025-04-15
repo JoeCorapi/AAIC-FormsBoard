@@ -1,0 +1,253 @@
+﻿@page "/namechangerequestform"
+
+@using FormsBoard.Data.HRForms
+@using FormsBoard.Services
+@using FormsBoard.Pages.Components
+
+@inject IConfiguration Configuration
+@inject IModalService ModalService
+
+<style>
+    form .row {
+        margin-bottom: 16px;
+    }
+</style>
+<FormToast />
+<AuthorizeView Roles="@String.Join(",", Configuration.GetSection("HRFormPermissions").Get<List<string>>().ToArray())">
+    <Authorized Context="Auth">
+
+        @if (nameChangeRequest == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <RadzenTemplateForm Data="@nameChangeRequest" Submit="@((NameChangeRequest ncr) => { Submit(); })" InvalidSubmit=@OnInvalidSubmit>
+
+                <h2 style="text-align:Center">
+                    <u>HR Name Change Request</u>
+                </h2>
+                <!----------------------------------------------------------------------------------------------------------------------------->
+                <!------------------------------------------------------ EMPLOYEE NAMES ------------------------------------------------------->
+                <!----------------------------------------------------------------------------------------------------------------------------->
+                <div class="row">
+                    <div class="col-md-6">
+                        <RadzenFieldset Text="Current Name">
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Current First Name" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Current first name" style="width: 100%;" Name="currentFirstName" @bind-Value=@nameChangeRequest.CurrentFirstName />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Current Middle Name" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Current middle name" style="width: 100%;" Name="currentMiddleName" @bind-Value=@nameChangeRequest.CurrentMiddleName />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Current Last Name" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Current last name" style="width: 100%;" Name="currentLastName" @bind-Value=@nameChangeRequest.CurrentLastName />
+                                    <RadzenRequiredValidator Component="currentLastName" />
+                                </div>
+                            </div>
+                        </RadzenFieldset>
+                    </div>
+                    <div class="col-md-6">
+                        <RadzenFieldset Text="Requested Name">
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Requested First Name" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Requested first name" style="width: 100%;" Name="requestedFirstName" @bind-Value=@nameChangeRequest.RequestedFirstName />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Requested Middle Name" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Requested middle name" style="width: 100%;" Name="requestedMiddleName" @bind-Value=@nameChangeRequest.RequestedMiddleName />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Requested Last Name" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Requested last name" style="width: 100%;" Name="requestedLastName" @bind-Value=@nameChangeRequest.RequestedLastName />
+                                    <RadzenRequiredValidator Component="requestedLastName" />
+                                </div>
+                            </div>
+                        </RadzenFieldset>
+                    </div>
+                </div>
+                <!----------------------------------------------------------------------------------------------------------------------------->
+                <!-------------------------------------------------- ADMINISTRATIVE DETAILS --------------------------------------------------->
+                <!----------------------------------------------------------------------------------------------------------------------------->
+                <div class="row">
+                    <div class="col-md-6">
+                        <RadzenFieldset Text="Approver">
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="HR Approver's Name" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Approver's name" style="width: 100%;" Name="approverName" @bind-Value=@nameChangeRequest.ApproverName />
+                                    <RadzenRequiredValidator Component="approverName" />
+                                </div>
+                            </div>
+                        </RadzenFieldset>
+                    </div>
+                    <div class="col-md-6">
+                        <RadzenFieldset Text="Change Date Requested">
+                            <div class="row">
+                                <div class="align-items-center d-flex col-md-4">
+                                    <RadzenLabel Text="Requested Date" />
+                                </div>
+                                <div class="col-md-6">
+                                    <RadzenDatePicker Placeholder="MM/dd/yyyy" style="width: 100%;" Name="requestedDate" @bind-Value=@nameChangeRequest.RequestedDate DateFormat="MM/dd/yyyy" />
+                                    <RadzenRequiredValidator Component="requestedDate" />
+                                </div>
+                            </div>
+                        </RadzenFieldset>
+                    </div>
+                </div>
+                <!------------------------------------------------------------------------------------------------------------------------------>
+                <!--------------------------------------------------- Additional Information --------------------------------------------------->
+                <!------------------------------------------------------------------------------------------------------------------------------>
+                <div class="col-md-12">
+                    <RadzenFieldset Text="Additional Information">
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel Text="Request Submitted By" />
+                            </div>
+                            <div class="col-md-4">
+                                <RadzenTextBox Placeholder="Submitted by" style="width: 100%;" Name="submittedBy" @bind-Value=@nameChangeRequest.SubmittedBy />
+                                <RadzenRequiredValidator Component="submittedBy" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel Text="Comments" />
+                            </div>
+                            <div class="col-md-8">
+                                <RadzenTextArea Placeholder="Additional Comments..." Cols="30" Rows="3" style="width: 100%;" Name="Comments" @bind-Value=@nameChangeRequest.Comments />
+                            </div>
+                        </div>
+                    </RadzenFieldset>
+                </div>
+                <!----------------------------------------------------------------------------------------------------------------------------->
+                <!------------------------------------------------------ AKNOWLEDGEMENT ------------------------------------------------------->
+                <!----------------------------------------------------------------------------------------------------------------------------->
+                <div class="col-md-12">
+                    <RadzenFieldset Text="Acknowledgement" Name="">
+                        <RadzenCheckBox @bind-Value=@acknowledged Name="Acknowledged" />
+                        <RadzenLabel Text="The appropriate documentation has been submitted and approved by HR to legally change the person’s name
+                                listed above." Component="acknowleged" Style="margin-left: 8px; vertical-align: middle;" />
+                    </RadzenFieldset>
+                </div>
+                <!------------------------------------------------------------------------------------------------------------------------------>
+                <!-------------------------------------------------------- FORM BUTTONS -------------------------------------------------------->
+                <!------------------------------------------------------------------------------------------------------------------------------>
+                <div class="row justify-content-center">
+                    <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
+                        <RadzenButton ButtonType="Radzen.ButtonType.Submit" Disabled=@(!acknowledged) Icon="save" Text="Submit" />
+                        <RadzenButton ButtonType="Radzen.ButtonType.Button" ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Reset" Click="ClearForm" />
+                    </div>
+                </div>
+            </RadzenTemplateForm>
+        }
+    </Authorized>
+    <NotAuthorized>
+        Current user is not authorized to view this content. If you believe this is in error please contact your system administrator.
+    </NotAuthorized>
+</AuthorizeView>
+
+@code
+{
+
+    private NameChangeRequest nameChangeRequest = new NameChangeRequest();
+    private bool acknowledged;
+
+    [CascadingParameter] public IModalService Modal { get; set; }
+
+    async void Submit()
+    {
+        string emailSubject = $"Name Change Request Notification: {nameChangeRequest?.CurrentFirstName} {nameChangeRequest.CurrentLastName}";
+        string emailBody = WriteEMailBody(nameChangeRequest);
+        List<string> emailList = Configuration.GetSection("NameChangeRequestList").Get<List<string>>();
+
+        var parameters = new ModalParameters();
+
+        parameters.Add(nameof(FormSubmitText.Subject), emailSubject);
+        parameters.Add(nameof(FormSubmitText.Body), emailBody);
+        parameters.Add(nameof(FormSubmitText.EmailList), emailList);
+
+        var formModal = Modal.Show<FormSubmitText>("Confirm Submission", parameters);
+        var result = await formModal.Result;
+
+        if (result.Cancelled)
+        {
+        }
+        else
+        {
+            ClearForm();
+        }
+    }
+
+    private string WriteEMailBody(NameChangeRequest ncr)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.Append("The appropriate documentation has been submitted and approved by HR to legally change the person’s name listed below. Please update all corporate systems accordingly.<br />");
+
+        sb.Append("<p>");
+        sb.Append("<b>Current Name:</b><br/>");
+        if (!string.IsNullOrWhiteSpace(ncr.CurrentFirstName)) { sb.Append($"First Name: {ncr.CurrentFirstName}<br />"); }
+        if (!string.IsNullOrWhiteSpace(ncr.CurrentMiddleName)) { sb.Append($"Middle Name: {ncr.CurrentMiddleName}<br />"); }
+        if (!string.IsNullOrWhiteSpace(ncr.CurrentLastName)) { sb.Append($"Last Name: {ncr.CurrentLastName}<br />"); }
+        sb.Append("</p>");
+
+        sb.Append("<p>");
+        sb.Append("<b>Requested Name Change: </b><br/>");
+        if (!string.IsNullOrWhiteSpace(ncr.RequestedFirstName)) { sb.Append($"First Name: {ncr.RequestedFirstName}<br />"); }
+        if (!string.IsNullOrWhiteSpace(ncr.RequestedMiddleName)) { sb.Append($"Middle Name: {ncr.RequestedMiddleName}<br />"); }
+        if (!string.IsNullOrWhiteSpace(ncr.RequestedLastName)) { sb.Append($"Last Name: {ncr.RequestedLastName}<br />"); }
+        sb.Append("</p>");
+
+        if (!string.IsNullOrWhiteSpace(ncr.ApproverName)) { sb.Append($"Approved By: {ncr.ApproverName}<br />"); }
+        sb.Append($"Requested Date: {ncr.RequestedDate.Date.ToString("MM/dd/yyyy")}<br />");
+
+        if (!string.IsNullOrWhiteSpace(ncr.SubmittedBy)) { sb.AppendLine($"Request Submitted By: {ncr.SubmittedBy}<br />"); }
+        if (!string.IsNullOrWhiteSpace(ncr.Comments)) { sb.AppendLine($"Comments: <br />&nbsp;&nbsp;&nbsp;&nbsp;{ncr.Comments}"); }
+
+        sb.Append("</p>");
+
+        return sb.ToString();
+    }
+
+    private void ClearForm()
+    {
+        nameChangeRequest = new NameChangeRequest();
+        acknowledged = false;
+        StateHasChanged();
+    }
+
+    void Collapse(bool className)
+    {
+    }
+
+    void OnInvalidSubmit()
+    {
+
+    }
+}

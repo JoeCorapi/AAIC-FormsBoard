@@ -1,0 +1,18 @@
+﻿@page "/administration"
+
+@inject IConfiguration Configuration
+
+<AuthorizeView Roles="@String.Join(",", Configuration.GetSection("AdminFormPermissions").Get<List<string>>().ToArray())">
+    <Authorized Context="AdminAuth">
+        <div class="row">
+            <h3> Administration Placeholder</h3>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        Current user is not authorized to view this content. If you believe this is in error please contact your system administrator.
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+}

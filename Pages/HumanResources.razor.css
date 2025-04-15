@@ -1,0 +1,23 @@
+﻿ul {
+    padding: 3px;
+}
+
+li {
+    align-content: flex-start;
+    padding: 3px
+}
+
+ul li a {
+    margin-left: 12px;
+}
+
+.list-pdf {
+    list-style: none;
+}
+
+.list-pdf:before {
+    content: url("pdf.ico");
+    margin: 5px 5px 0 -10px;
+    vertical-align: text-bottom;
+    position: absolute;
+}

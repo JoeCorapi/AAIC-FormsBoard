@@ -1,0 +1,238 @@
+﻿@page "/separatedemployeeform"
+
+@using FormsBoard.Data.HRForms
+@using FormsBoard.Services
+@using FormsBoard.Pages.Components
+
+@inject IConfiguration Configuration
+@inject IModalService ModalService
+
+
+<style>
+    form .row {
+        margin-bottom: 16px;
+    }
+</style>
+
+<FormToast />
+<AuthorizeView Roles="@String.Join(",", Configuration.GetSection("HRFormPermissions").Get<List<string>>().ToArray())">
+    <Authorized Context="Auth">
+        @if (separatedEmployee == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+    <RadzenTemplateForm Data="@separatedEmployee" Submit="@((SeparatedEmployee se) => { Submit(); })" InvalidSubmit=@OnInvalidSubmit>
+
+        <h2 style="text-align:Center">
+            <u>Employee Separation Notification</u>
+        </h2>
+
+        <div class="row">
+            <!----------------------------------------------------------------------------------------------------------------------------->
+            <!------------------------------------------------------ EMPLOYEE DETAILS ----------------------------------------------------->
+            <!----------------------------------------------------------------------------------------------------------------------------->
+            <div class="col-md-6">
+                <RadzenFieldset Text="Employee Details">
+                    <div class="row">
+                        <div class="col-md-4 align-items-center d-flex">
+                            <RadzenLabel Text="Last Name" />
+                        </div>
+                        <div class="col-md-8">
+                            <RadzenTextBox Placeholder="Employee last name" style="width: 100%;" Name="firstName" @bind-Value=@separatedEmployee.LastName />
+                            <RadzenRequiredValidator Component="lastName" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 align-items-center d-flex">
+                            <RadzenLabel Text="First Name" />
+                        </div>
+                        <div class="col-md-8">
+                            <RadzenTextBox Placeholder="First Name" style="width: 100%;" Name="lastName" @bind-Value=@separatedEmployee.FirstName />
+                            <RadzenRequiredValidator Component="firstName" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 align-items-center d-flex">
+                            <RadzenLabel Text="Location" />
+                        </div>
+                        <div class="col-md-8">
+                            <RadzenTextBox Placeholder="Location" style="width: 100%;" Name="location" @bind-Value=@separatedEmployee.Location />
+                            <RadzenRequiredValidator Component="location" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 align-items-center d-flex">
+                            <RadzenLabel Text="Specialty" />
+                        </div>
+                        <div class="col-md-8">
+                            <RadzenTextBox Placeholder="Specialty" style="width: 100%;" Name="specialty" @bind-Value=@separatedEmployee.Specialty />
+                            <RadzenRequiredValidator Component="specialty" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 align-items-center d-flex">
+                            <RadzenLabel Text="Department" />
+                        </div>
+                        <div class="col-md-8">
+                            <RadzenTextBox Placeholder="Department" style="width: 100%;" Name="department" @bind-Value=@separatedEmployee.Department />
+                            <RadzenRequiredValidator Component="department" />
+                        </div>
+                    </div>
+                </RadzenFieldset>
+            </div>
+            <!----------------------------------------------------------------------------------------------------------------------------->
+            <!------------------------------------------------------ IMPORTANT DATES ------------------------------------------------------>
+            <!----------------------------------------------------------------------------------------------------------------------------->
+            <div class="col-md-6">
+                <RadzenFieldset Text="Important Dates">
+                    <div class="row">
+                        <div class="align-items-center d-flex col-md-4">
+                            <RadzenLabel Text="Separation Date Requested" />
+                        </div>
+                        <div class="col-md-8">
+                            <RadzenDatePicker Placeholder="MM/dd/yyyy" style="width: 100%;" Name="separatedDate" @bind-Value=@separatedEmployee.SeparatedDate DateFormat="MM/dd/yyyy" />
+                            <RadzenRequiredValidator Component="separatedDate" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="align-items-center d-flex col-md-4">
+                            <RadzenLabel Text="Deactivation Effective" />
+                        </div>
+                        <div class="col-md-8">
+                            <RadzenTextBox Placeholder="eg. Immediately, End of Day, 07/05/2021" style="width: 100%;" Name="deactivationEffective" @bind-Value=@separatedEmployee.DeactivationEffective />
+                            <RadzenRequiredValidator Component="deactivationEffective" />
+                        </div>
+                    </div>
+                </RadzenFieldset>
+            </div>
+        </div>
+        <!------------------------------------------------------------------------------------------------------------------------------>
+        <!-------------------------------------------------------- REMOVAL LISTS ------------------------------------------------------->
+        <!------------------------------------------------------------------------------------------------------------------------------>
+        <div class="col-md-12">
+            <RadzenFieldset Text="Lists for Removal">
+                <div class="row">
+                    <RadzenCheckBoxList @bind-Value=@separatedEmployee.RemoveFromList>
+                        <Items>
+                            @foreach (string item in SeparatedEmployeeData.RemoveFromList)
+                            {
+                                <RadzenCheckBoxListItem Text="@item" Value="@item" />
+                            }
+                        </Items>
+                    </RadzenCheckBoxList>
+                </div>
+            </RadzenFieldset>
+        </div>
+        <!------------------------------------------------------------------------------------------------------------------------------>
+        <!--------------------------------------------------- Additional Information --------------------------------------------------->
+        <!------------------------------------------------------------------------------------------------------------------------------>
+        <div class="col-md-12">
+            <RadzenFieldset Text="Additional Information">
+                <div class="row">
+                    <div class="col-md-4 align-items-center d-flex">
+                        <RadzenLabel Text="Request Submitted By" />
+                    </div>
+                    <div class="col-md-4">
+                        <RadzenTextBox Placeholder="Submitted by" style="width: 100%;" Name="submittedBy" @bind-Value=@separatedEmployee.SubmittedBy />
+                        <RadzenRequiredValidator Component="submittedBy" />
+                    </div>
+                </div>
+            </RadzenFieldset>
+        </div>
+        <!------------------------------------------------------------------------------------------------------------------------------>
+        <!-------------------------------------------------------- FORM BUTTONS -------------------------------------------------------->
+        <!------------------------------------------------------------------------------------------------------------------------------>
+        <div class="row justify-content-center">
+            <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit" Icon="save" Text="Submit" />
+                <RadzenButton ButtonType="Radzen.ButtonType.Button" ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Reset" Click="ClearForm" />
+            </div>
+        </div>
+    </RadzenTemplateForm>
+        }
+    </Authorized>
+    <NotAuthorized>
+        Current user is not authorized to view this content. If you believe this is in error please contact your system administrator.
+    </NotAuthorized>
+</AuthorizeView>
+
+@code
+{
+    private SeparatedEmployee separatedEmployee = new SeparatedEmployee()
+    {
+        SeparatedDate = DateTime.Now,
+    };
+
+    [CascadingParameter] public IModalService Modal { get; set; }
+
+    async void Submit()
+    {
+        string emailSubject = $"Separated Employee Notification: {separatedEmployee.LastName}, {separatedEmployee.FirstName}";
+        string emailBody = WriteEMailBody(separatedEmployee);
+        List<string> emailList = Configuration.GetSection("SeparatedEmployeeList").Get<List<string>>();
+
+        var parameters = new ModalParameters();
+
+        parameters.Add(nameof(FormSubmitText.Subject), emailSubject);
+        parameters.Add(nameof(FormSubmitText.Body), emailBody);
+        parameters.Add(nameof(FormSubmitText.EmailList), emailList);
+
+        var formModal = Modal.Show<FormSubmitText>("Confirm Submission", parameters);
+        var result = await formModal.Result;
+
+        if (result.Cancelled)
+        {
+        }
+        else
+        {
+            ClearForm();
+        }
+    }
+
+    private string WriteEMailBody(SeparatedEmployee se)
+    {
+        StringBuilder sb = new StringBuilder("<p>");
+
+        if (!string.IsNullOrWhiteSpace(se.LastName)) { sb.Append($"Last Name: {se.LastName}<br />"); }
+        if (!string.IsNullOrWhiteSpace(se.FirstName)) { sb.Append($"First Name: {se.FirstName}<br />"); }
+
+        sb.Append($"Separation Date Requested: {se.SeparatedDate.Date.ToShortDateString()}<br />");
+        if (!string.IsNullOrWhiteSpace(se.DeactivationEffective)) { sb.Append($"Deactivation Effective: {se.DeactivationEffective}<br />"); }
+
+        if (!string.IsNullOrWhiteSpace(se.Location)) { sb.Append($"Location: {se.Location}<br />"); }
+        if (!string.IsNullOrWhiteSpace(se.Specialty)) { sb.Append($"Specialty: {se.Specialty}<br />"); }
+        if (!string.IsNullOrWhiteSpace(se.Department)) { sb.Append($"Department: {se.Department}<br />"); }
+
+        if (se.RemoveFromList != null && se.RemoveFromList.Any())
+        {
+            sb.AppendLine($"<mark>Employee will need to be removed from the following lists:</mark><br />");
+            foreach (string item in se.RemoveFromList)
+            {
+                sb.AppendLine($"&nbsp;&nbsp;&nbsp;&nbsp;{item}<br />");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(se.SubmittedBy)) { sb.AppendLine($"Request Submitted By: {se.SubmittedBy}<br />"); }
+
+        sb.Append("</p>");
+
+        return sb.ToString();
+    }
+
+    private void ClearForm()
+    {
+        separatedEmployee = new SeparatedEmployee()
+        {
+            SeparatedDate = DateTime.Now,
+        };
+
+        StateHasChanged();
+    }
+
+    void OnInvalidSubmit()
+    {
+
+    }
+}

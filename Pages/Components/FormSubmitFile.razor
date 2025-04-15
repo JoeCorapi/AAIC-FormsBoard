@@ -1,0 +1,74 @@
+﻿@using System;
+@using System.IO;
+@using Serilog;
+@using FormsBoard.Services
+
+@inject IMailService MailService
+@inject IToastService toastService
+@inject IConfiguration Configuration
+
+<div>
+    <p style="text-align:center">Submit Form?</p>
+    <div class="row">
+        <div class="col-md-12">
+            <RadzenButton Text="@buttonText" Disabled="@buttonDisabled" Click="Close" Style="margin-bottom: 10px; width: 150px" />
+            <RadzenButton Text="Cancel" Click="Cancel" ButtonStyle="ButtonStyle.Secondary" Style="margin-bottom: 10px; width: 150px" />
+        </div>
+    </div>
+</div>
+
+@code {
+
+    //<button @onclick="Close" class="btn btn-primary">Submit</button>
+    //<button @onclick="Cancel" class="btn btn-secondary">Cancel</button>
+    [CascadingParameter] BlazoredModalInstance Modal { get; set; }
+
+    [Parameter] public string Subject { get; set; }
+    [Parameter] public string Body { get; set; }
+    [Parameter] public byte[] Data { get; set; }
+    [Parameter] public string FilePath { get; set; }
+    [Parameter] public string FileName { get; set; }
+    [Parameter] public string MediaType{ get; set; }
+    [Parameter] public IEnumerable<string> EmailList { get; set; }
+
+    public bool buttonDisabled = false;
+    private string buttonText = "Submit";
+
+    async Task Close()
+    {
+        buttonDisabled=true;
+        buttonText="Sending...";
+        await Task.Delay(1);
+
+        string destPath = Configuration.GetSection("HR_PDF_DIR").Get<string>();
+
+        try
+        {
+            if (!Directory.Exists(destPath))
+            {
+                Directory.CreateDirectory(destPath);
+            }
+            File.WriteAllBytes(Path.Combine(destPath, FileName), Data);
+
+            MailService.SendEmailAttachment(Subject, Body, Data, FileName, MediaType, EmailList);
+
+            await Modal.CloseAsync(ModalResult.Ok($"Form was submitted successfully."));
+            toastService.ShowMessage("Success!", "Form submission successful!");
+
+            Log.Information($"File Form Submission: \n File: {FileName}\n Email: {string.Join(',', EmailList)}\n Path: {destPath}");  
+        }
+        catch (Exception e)
+        {
+            string message = e.InnerException == null ? e.Message : e.InnerException.Message;
+
+            Log.Error($"File Form Submission:\n Stack Trace: {e.StackTrace}\n Message: {message}\n File: {FileName}\n Email: {string.Join(',', EmailList)}\n Path: {destPath}");  
+
+            await Modal.CancelAsync();
+            toastService.ShowMessage("ERROR", "Form submission failed to send files.");
+        }
+    }
+
+    async Task Cancel() => await Modal.CancelAsync();
+}
+  
+

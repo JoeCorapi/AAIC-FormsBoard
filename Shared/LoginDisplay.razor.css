@@ -1,0 +1,19 @@
+﻿.user-info {
+    color: #495057;
+    padding: 0.5rem 1rem;
+    height: auto;
+}
+
+.user-name {
+    font-weight: 500;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: normal;
+}
+
+.user-icon {
+    font-size: 1.1rem;
+    color: #6c757d;
+}

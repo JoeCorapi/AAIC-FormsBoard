@@ -1,0 +1,10 @@
+﻿<AuthorizeView>
+    <Authorized>
+        <div class="d-flex align-items-center h-100 me-3">
+            <div class="user-info d-flex align-items-center">
+                <span class="user-icon me-2">👤</span>
+                <span class="user-name">@context.User.FindFirst("name")?.Value</span>
+            </div>
+        </div>
+    </Authorized>
+</AuthorizeView>

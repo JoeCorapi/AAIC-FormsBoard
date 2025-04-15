@@ -1,0 +1,62 @@
+﻿@page "/humanResources"
+
+@using FormsBoard.Pages.Components
+
+@inject IConfiguration Configuration
+
+<AuthorizeView Roles="@String.Join(",", Configuration.GetSection("HRFormPermissions").Get<List<string>>().ToArray())">
+    <Authorized Context="HRAuth">
+        <div class="row">
+            <div class="col-md-6 flex-column">
+                <h3 style="text-align:center; text-decoration:underline">HR Forms</h3>
+                <ul>
+                    <li>
+                        <RadzenLink class="e-info" Path="newhireform" Text="New Hire" />
+                    </li>
+                    <li>
+                        <RadzenLink class="e-info" Path="separatedemployeeform" Text="Separated Employee" />
+                    </li>
+                    <li>
+                        <RadzenLink class="e-info" Path="namechangerequestform" Text="Name Change Request" />
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-6 flex-column">
+                <AuthorizeView Roles="DevelopmentTester">
+                    <Authorized Context="PdfAuth">
+                        <h3 style="text-align:center; text-decoration:underline">PDF Forms</h3>
+                        <ul>
+                            <li class="list-pdf">
+                                <PdfFiller DocumentPath="wwwroot/Forms/HR/PDF/Direct Deposit.pdf" FormName="Direct Deposit" User="@PdfAuth.User.Identity.Name.Split("\\")[1]" DistributionList="AASC_PDF_TEST" />
+                            </li>
+                            <li class="list-pdf">
+                                <PdfFiller DocumentPath="wwwroot/Forms/HR/PDF/EEO Self Identification.pdf" FormName="EEO Self Identification" User="@PdfAuth.User.Identity.Name.Split("\\")[1]" DistributionList="AASC_PDF_TEST" />
+                            </li>
+                            <li class="list-pdf">
+                                <PdfFiller DocumentPath="wwwroot/Forms/HR/PDF/Employee Information & Emergency Contact.pdf" FormName="Employee Information & Emergency Contact" User="@PdfAuth.User.Identity.Name.Split("\\")[1]" DistributionList="AASC_PDF_TEST" />
+                            </li>
+                            <li class="list-pdf">
+                                <PdfFiller DocumentPath="wwwroot/Forms/HR/PDF/I-9.pdf" FormName="I-9" User="@PdfAuth.User.Identity.Name.Split("\\")[1]" DistributionList="AASC_PDF_TEST" />
+                            </li>
+                            <li class="list-pdf">
+                                <PdfFiller DocumentPath="wwwroot/Forms/HR/PDF/New Hire Form.pdf" FormName="New Hire Form" User="@PdfAuth.User.Identity.Name.Split("\\")[1]" DistributionList="AASC_PDF_TEST" />
+                            </li>
+                            <li class="list-pdf">
+                                <PdfFiller DocumentPath="wwwroot/Forms/HR/PDF/W-4.pdf" FormName="W-4" User="@PdfAuth.User.Identity.Name.Split("\\")[1]" DistributionList="AASC_PDF_TEST" />
+                            </li>
+                            <li class="list-pdf">
+                                <PdfFiller DocumentPath="wwwroot/Forms/HR/PDF/Direct Deposit Authorization Form - AASCrev.pdf" FormName="DD" User="@PdfAuth.User.Identity.Name.Split("\\")[1]" DistributionList="AASC_PDF_TEST" />
+                            </li>
+                        </ul>
+                    </Authorized>
+                </AuthorizeView>
+            </div>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        Current user is not authorized to view this content. If you believe this is in error please contact your system administrator.
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+}

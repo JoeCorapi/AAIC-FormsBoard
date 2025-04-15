@@ -1,0 +1,18 @@
+﻿@page "/accounting"
+
+@inject IConfiguration Configuration
+
+<AuthorizeView Roles="@String.Join(",", Configuration.GetSection("AcctFormPermissions").Get<List<string>>().ToArray())">
+    <Authorized Context="AccAuth">
+        <div class="row">
+            <h3> Accounting Forms Placeholder</h3>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        Current user is not authorized to view this content. If you believe this is in error please contact your system administrator.
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+}

@@ -1,0 +1,34 @@
+﻿@using FormsBoard.Services
+@using Syncfusion.Blazor.Notifications
+
+<SfToast @ref="@_sfToast" TimeOut="@TimeOut">
+    <ToastPosition X="Right" Y="Bottom"></ToastPosition>
+    <ToastAnimationSettings>
+        <ToastShowAnimationSettings Effect="@ShowEffect" Easing="@ShowEasing" Duration="@ShowDuration"></ToastShowAnimationSettings>
+        <ToastHideAnimationSettings Effect="@HideEffect" Easing="@HideEasing" Duration="@HideDuration"></ToastHideAnimationSettings>
+    </ToastAnimationSettings>
+</SfToast>
+
+@code {
+
+    [Inject]
+    private IToastService ToastService { get; set; }
+
+    private SfToast _sfToast;
+
+    public ToastEasing ShowEasing { get; set; } = ToastEasing.Ease;
+    public ToastEasing HideEasing { get; set; } = ToastEasing.Ease;
+    public ToastEffect ShowEffect { get; set; } = ToastEffect.SlideRightIn;
+    public ToastEffect HideEffect { get; set; } = ToastEffect.SlideRightOut;
+    public int ShowDuration = 400;
+    public int HideDuration = 400;
+    public int TimeOut = 5000;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ToastService.SfToast = _sfToast;
+        }
+    }
+}

@@ -1,0 +1,27 @@
+﻿@namespace FormsBoard.Shared
+@using Microsoft.AspNetCore.Authentication;
+@using Microsoft.AspNetCore.Authentication.Cookies;
+@using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+
+@inject NavigationManager NavigationManager
+@inject IConfiguration Configuration
+
+<AuthorizeView>
+    <Authorized>
+        <div class="h-100 d-flex align-items-center">
+            <button class="btn nav-link sign-out-button rounded-3" @onclick="HandleSignOut">
+                <span class="d-flex align-items-center">
+                    <span class="me-2">➜</span>
+                    Sign Out
+                </span>
+            </button>
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private async Task HandleSignOut()
+    {
+            NavigationManager.NavigateTo("MicrosoftIdentity/Account/SignOut", forceLoad: true);
+    }
+}

@@ -1,0 +1,31 @@
+﻿/* Make tables responsive */
+.table {
+    width: 100%;
+    table-layout: fixed; /* This is crucial - it allows us to control column widths */
+    border-collapse: collapse;
+}
+
+    /* Set column widths */
+    .table th:first-child {
+        width: 30%; /* Claim type column takes 30% of the table width */
+    }
+
+    .table th:last-child {
+        width: 70%; /* Value column takes 70% of the table width */
+    }
+
+    /* Handle text overflow in table cells */
+    .table td {
+        word-wrap: break-word; /* Break words that are too long */
+        overflow-wrap: break-word; /* Modern browsers */
+        word-break: break-all; /* For very long strings without spaces */
+        overflow: hidden; /* Prevent overflow */
+        vertical-align: top; /* Align text to top for multi-line cells */
+        padding: 8px; /* Add some padding */
+    }
+
+/* Add a horizontal scrollbar only for very extreme cases */
+.p-4.border.rounded {
+    overflow-x: auto; /* Allow horizontal scrolling for the table container if needed */
+    max-width: 100%; /* Ensure it doesn't exceed the parent width */
+}

@@ -1,0 +1,303 @@
+﻿@page "/newhireform"
+
+@using FormsBoard.Data.HRForms
+@using FormsBoard.Services
+@using FormsBoard.Pages.Components
+
+@inject IConfiguration Configuration
+@inject IModalService ModalService
+
+<style>
+    form .row {
+        margin-bottom: 16px;
+    }
+</style>
+<FormToast />
+<AuthorizeView Roles="@String.Join(",", Configuration.GetSection("HRFormPermissions").Get<List<string>>().ToArray())">
+    <Authorized Context="Auth">
+
+        @if (newHire == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <RadzenTemplateForm Data="@newHire" Submit="@((NewHire nh) => { Submit(); })" InvalidSubmit=@OnInvalidSubmit>
+
+                <h2 style="text-align:Center">
+                    <u>HR New Hire Form</u>
+                </h2>
+
+                <div class="row">
+                    <!----------------------------------------------------------------------------------------------------------------------------->
+                    <!------------------------------------------------------ EMPLOYEE DETAILS ----------------------------------------------------->
+                    <!----------------------------------------------------------------------------------------------------------------------------->
+                    <div class="col-md-6">
+                        <RadzenFieldset Text="Employee Details">
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Employee Full Name" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Full name" style="width: 100%;" Name="employeeName" @bind-Value=@newHire.EmployeeName />
+                                    <RadzenRequiredValidator Component="employeeName" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Title" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Title" style="width: 100%;" Name="title" @bind-Value=@newHire.Title />
+                                    <RadzenRequiredValidator Component="title" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Specialty" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Specialty" style="width: 100%;" Name="specialty" @bind-Value=@newHire.Specialty />
+                                    <RadzenRequiredValidator Component="specialty" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Department" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Department" style="width: 100%;" Name="department" @bind-Value=@newHire.Department />
+                                    <RadzenRequiredValidator Component="department" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Home Location" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Home location" style="width: 100%;" Name="homeLocation" @bind-Value=@newHire.HomeLocation />
+                                    <RadzenRequiredValidator Component="homeLocation" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Office Name" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Office name" style="width: 100%;" Name="officeName" @bind-Value=@newHire.OfficeName />
+                                    <RadzenRequiredValidator Component="officeName" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Company" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Company" style="width: 100%;" Name="company" @bind-Value=@newHire.Company />
+                                    <RadzenRequiredValidator Component="company" />
+                                </div>
+                            </div>
+                        </RadzenFieldset>
+                    </div>
+                    <!----------------------------------------------------------------------------------------------------------------------------->
+                    <!-------------------------------------------------- EMPLOYEE DETAILS CONTD. -------------------------------------------------->
+                    <!----------------------------------------------------------------------------------------------------------------------------->
+                    <div class="col-md-6">
+                        <RadzenFieldset Text="Employee Details Contd.">
+                            <div class="row">
+                                <div class="align-items-center d-flex col-md-4">
+                                    <RadzenLabel Text="Start Date" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenDatePicker Placeholder="MM/dd/yyyy"  style="width: 100%;" Name="startDate" @bind-Value=@newHire.StartDate DateFormat="MM/dd/yyyy" />
+                                    <RadzenRequiredValidator Component="startDate" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Status" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Status" style="width: 100%;" Name="status" @bind-Value=@newHire.Status />
+                                    <RadzenRequiredValidator Component="status" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 align-items-center d-flex list-unstyled" style="vertical-align:top">
+                                    <RadzenLabel Text="Standard Application" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Standard Application" style="width: 100%;" Name="standardApplication" @bind-Value=@newHire.StandardApplication />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <RadzenCheckBox TValue="bool" @bind-Value=@newHire.MilageGrid Change=@(args => Collapse(showMilageFields)) Name="milageGrid" Style="margin-left: 10px" />
+                                <RadzenLabel Text="Mileage Grid" Component="MilageGrid" Style="margin-left: 5px;" />
+                            </div>
+                            <div class="row @milageFields">
+                                <div class="col-md-4 align-items-right d-flex">
+                                    <RadzenLabel Text="Employee Home Address" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Employee's home address" style="width: 100%;" Name="employeeHomeAddress" @bind-Value=@newHire.EmployeeHomeAddress />
+                                    <RadzenRequiredValidator Component="employeeHomeAddress" Visible="showMilageFields" />
+                                </div>
+                            </div>
+                            <div class="row @milageFields">
+                                <div class="col-md-4 align-items-center d-flex">
+                                    <RadzenLabel Text="Locations" />
+                                </div>
+                                <div class="col-md-8">
+                                    <RadzenTextBox Placeholder="Locations needed" style="width: 100%;" Name="locationsNeeded" @bind-Value=@newHire.LocationsNeeded />
+                                    <RadzenRequiredValidator Component="locationsNeeded" Visible="showMilageFields" />
+                                </div>
+                            </div>
+                        </RadzenFieldset>
+                    </div>
+                </div>
+                <!------------------------------------------------------------------------------------------------------------------------------>
+                <!----------------------------------------------------- DISTRIBUTION LISTS ----------------------------------------------------->
+                <!------------------------------------------------------------------------------------------------------------------------------>
+                <div class="col-md-12">
+                    <RadzenFieldset Text="Distribution Lists">
+                        <div class="row">
+                            <RadzenCheckBoxList @bind-Value=@newHire.DistributionLists>
+                                <Items>
+                                    @foreach (string distList in NewHireData.DistributionLists)
+                                    {
+                                        <RadzenCheckBoxListItem Text="@distList" Value="@distList" />
+                                    }
+                                </Items>
+                            </RadzenCheckBoxList>
+                        </div>
+                    </RadzenFieldset>
+                </div>
+                <!------------------------------------------------------------------------------------------------------------------------------>
+                <!--------------------------------------------------- Additional Information --------------------------------------------------->
+                <!------------------------------------------------------------------------------------------------------------------------------>
+                <div class="col-md-12">
+                    <RadzenFieldset Text="Additional Information">
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel Text="Request Submitted By" />
+                            </div>
+                            <div class="col-md-4">
+                                <RadzenTextBox Placeholder="Submitted by" style="width: 100%;" Name="submittedBy" @bind-Value=@newHire.SubmittedBy />
+                                <RadzenRequiredValidator Component="submittedBy" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel Text="Comments" />
+                            </div>
+                            <div class="col-md-8">
+                                <RadzenTextArea Placeholder="Additional Comments..." Cols="30" Rows="3" style="width: 100%;" Name="comments" @bind-Value=@newHire.Comments />
+                            </div>
+                        </div>
+                    </RadzenFieldset>
+                </div>
+                <!------------------------------------------------------------------------------------------------------------------------------>
+                <!-------------------------------------------------------- FORM BUTTONS -------------------------------------------------------->
+                <!------------------------------------------------------------------------------------------------------------------------------>
+                <div class="row justify-content-center">
+                    <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
+                        <RadzenButton ButtonType="Radzen.ButtonType.Submit" Icon="save" Text="Submit" />
+                        <RadzenButton ButtonType="Radzen.ButtonType.Button" ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Reset" Click="ClearForm" />
+                    </div>
+                </div>
+            </RadzenTemplateForm>
+        }
+    </Authorized>
+    <NotAuthorized>
+        Current user is not authorized to view this content. If you believe this is in error please contact your system administrator.
+    </NotAuthorized>
+</AuthorizeView>
+
+@code
+{
+    private bool showMilageFields = false;
+    private string milageFields => showMilageFields ? null : "collapse";
+
+    private NewHire newHire = new NewHire();
+    [CascadingParameter] public IModalService Modal { get; set; }
+
+    async void Submit()
+    {
+        string emailSubject = $"New Hire Notification: {newHire.EmployeeName}";
+        string emailBody = WriteEMailBody(newHire);
+        List<string> emailList = Configuration.GetSection("NewHiresList").Get<List<string>>();
+
+        var parameters = new ModalParameters();
+
+        parameters.Add(nameof(FormSubmitText.Subject), emailSubject);
+        parameters.Add(nameof(FormSubmitText.Body), emailBody);
+        parameters.Add(nameof(FormSubmitText.EmailList), emailList);
+
+        var formModal = Modal.Show<FormSubmitText>("Confirm Submission", parameters);
+        var result = await formModal.Result;
+
+        if (result.Cancelled)
+        {
+        }
+        else
+        {
+            ClearForm();
+        }
+    }
+
+    private string WriteEMailBody(NewHire nh)
+    {
+        StringBuilder sb = new StringBuilder("<p>");
+
+        if (!string.IsNullOrWhiteSpace(nh.EmployeeName)) { sb.Append($"Employee Name: {nh.EmployeeName}<br />"); }
+        if (!string.IsNullOrWhiteSpace(nh.Title)) { sb.Append($"Title: {nh.Title}<br />"); }
+        if (!string.IsNullOrWhiteSpace(nh.Specialty)) { sb.Append($"Specialty: {nh.Specialty}<br />"); }
+        if (!string.IsNullOrWhiteSpace(nh.Department)) { sb.Append($"Department: {nh.Department}<br />"); }
+        if (!string.IsNullOrWhiteSpace(nh.HomeLocation)) { sb.Append($"Home Location: {nh.HomeLocation}<br />"); }
+        if (!string.IsNullOrWhiteSpace(nh.OfficeName)) { sb.Append($"Office Name: {nh.OfficeName}<br />"); }
+        if (!string.IsNullOrWhiteSpace(nh.Company)) { sb.Append($"Company: {nh.Company}<br />"); }
+
+
+        sb.Append($"Start Date: {nh.StartDate.Date.ToString("MM/dd/yyyy")}<br />");
+        if (!string.IsNullOrWhiteSpace(nh.Status)) { sb.Append($"Status: {nh.Status}<br />"); }
+        if (!string.IsNullOrWhiteSpace(nh.StandardApplication)) { sb.AppendLine($"Standard Application: {nh.StandardApplication}<br />"); }
+        sb.Append("Mileage: " + (nh.MilageGrid ? "Yes" : "No") + "<br />");
+        if (nh.MilageGrid == true)
+        {
+            if (!string.IsNullOrWhiteSpace(nh.EmployeeHomeAddress)) { sb.AppendLine($"Employee Home Address: {nh.EmployeeHomeAddress}<br />"); }
+            if (!string.IsNullOrWhiteSpace(nh.LocationsNeeded)) { sb.AppendLine($"Locations Needed: {nh.LocationsNeeded}<br />"); }
+        }
+        if (nh.DistributionLists != null && nh.DistributionLists.Any())
+        {
+            sb.AppendLine($"Distribution Lists:<br />");
+            foreach (string distList in nh.DistributionLists)
+            {
+                sb.AppendLine($"&nbsp;&nbsp;&nbsp;&nbsp;{distList}<br />");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(nh.SubmittedBy)) { sb.AppendLine($"Request Submitted By: {nh.SubmittedBy}<br />"); }
+        if (!string.IsNullOrWhiteSpace(nh.Comments)) { sb.AppendLine($"Comments: <br />&nbsp;&nbsp;&nbsp;&nbsp;{nh.Comments}"); }
+
+        sb.Append("</p>");
+
+        return sb.ToString();
+    }
+
+    private void ClearForm()
+    {
+        newHire = new NewHire();
+        showMilageFields = false;
+        StateHasChanged();
+    }
+
+    void Collapse(bool className)
+    {
+        showMilageFields = !showMilageFields;
+    }
+
+    void OnInvalidSubmit()
+    {
+
+    }
+}

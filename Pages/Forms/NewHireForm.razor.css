@@ -1,0 +1,24 @@
+﻿.collapse
+{
+    display: none
+}
+
+.spinner {
+    border: 16px px solid silver;
+    border-top: 16px solid #337AB7;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 700ms linear infinie;
+    top: 40%;
+    left: 55%;
+    position: absolute;
+}
+
+@media {
+    .ui-dialog {
+        right: 0px;
+        width: 30% !important;
+        height: 100% !important;
+    }
+}
