@@ -28,15 +28,6 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Host.UseSerilog((ctx, cfg) => {
-        cfg.ReadFrom.Configuration(ctx.Configuration)
-           .WriteTo.ApplicationInsights(
-               new TelemetryConfiguration
-               {
-                   ConnectionString = ctx.Configuration["ApplicationInsights:ConnectionString"]
-               },
-               TelemetryConverter.Traces);
-    });
 
     // Core authentication setup with Microsoft.Identity.Web
     builder.Services.AddAuthentication(options =>
@@ -47,7 +38,7 @@ try
         options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
         // This is the critical one you're missing for sign-out
         options.DefaultSignOutScheme = OpenIdConnectDefaults.AuthenticationScheme;
-    })
+    }) 
     .AddMicrosoftIdentityWebApp(options =>
     {
         builder.Configuration.GetSection("AzureAd").Bind(options);
@@ -81,6 +72,7 @@ try
     builder.Services.AddApplicationInsightsTelemetry(options => {
         options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
     });
+
     builder.Services.AddRazorPages();
     builder.Services.AddServerSideBlazor()
         .AddMicrosoftIdentityConsentHandler()
@@ -90,6 +82,18 @@ try
     builder.Services.AddSingleton(builder.Configuration.GetSection("MailSettings").Get<MailSettings>());
     builder.Services.AddScoped<IToastService, ToastService>();
     builder.Services.AddScoped<IMailService, MailService>();
+
+    // Configure Serilog
+    builder.Host.UseSerilog((ctx, serviceProvider, cfg) => {
+        // Get the service provider so we can access the registered TelemetryConfiguration
+        var telemetryConfig = serviceProvider.GetRequiredService<TelemetryConfiguration>();
+
+
+        cfg.ReadFrom.Configuration(ctx.Configuration)
+           .WriteTo.ApplicationInsights(
+               telemetryConfig,
+               TelemetryConverter.Traces);
+    });
 
     var app = builder.Build();
 
