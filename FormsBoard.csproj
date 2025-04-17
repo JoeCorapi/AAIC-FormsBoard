@@ -34,10 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\Images\allergyasc_logo.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 
