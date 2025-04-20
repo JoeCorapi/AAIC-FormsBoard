@@ -1,6 +1,7 @@
-﻿using Syncfusion.Blazor.Notifications;
+﻿using FormsBoard.Application.Interfaces;
+using Syncfusion.Blazor.Notifications;
 
-namespace FormsBoard.Services
+namespace FormsBoard.Application.Services
 {
     public class ToastService : IToastService
     {

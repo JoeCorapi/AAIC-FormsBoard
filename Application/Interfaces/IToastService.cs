@@ -1,6 +1,6 @@
 ﻿using Syncfusion.Blazor.Notifications;
 
-namespace FormsBoard.Services
+namespace FormsBoard.Application.Interfaces
 {
     public interface IToastService
     {

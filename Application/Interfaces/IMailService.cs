@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace FormsBoard.Services
+namespace FormsBoard.Application.Interfaces
 {
     public interface IMailService
     {

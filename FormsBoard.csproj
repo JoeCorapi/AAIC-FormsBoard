@@ -34,6 +34,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Application\DTOs\" />
+    <Folder Include="Data\Context\" />
+    <Folder Include="Data\Repositories\" />
+    <Folder Include="Domain\Enums\" />
     <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 

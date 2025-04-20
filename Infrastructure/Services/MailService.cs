@@ -1,11 +1,12 @@
-﻿using FormsBoard.Data;
+﻿using FormsBoard.Application.Interfaces;
+using FormsBoard.Infrastructure.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Mail;
 
-namespace FormsBoard.Services
+namespace FormsBoard.Infrastructure.Services
 {
     public class MailService : IMailService
     {

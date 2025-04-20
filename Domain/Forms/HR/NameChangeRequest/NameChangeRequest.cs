@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FormsBoard.Data.HRForms
+namespace FormsBoard.Domain.Forms.HR.NameChangeRequest
 {
     public class NameChangeRequest
     {

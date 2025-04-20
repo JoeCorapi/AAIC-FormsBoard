@@ -3,8 +3,6 @@ using System.Threading.Tasks;
 using Serilog;
 using Blazored.Modal;
 using Syncfusion.Blazor;
-using FormsBoard.Data;
-using FormsBoard.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +14,10 @@ using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.ApplicationInsights.Extensibility;
+using FormsBoard.Infrastructure.Configuration;
+using FormsBoard.Infrastructure.Services;
+using FormsBoard.Application.Interfaces;
+using FormsBoard.Application.Services;
 
 
 Log.Logger = new LoggerConfiguration()

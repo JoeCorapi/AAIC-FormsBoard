@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FormsBoard.Data.HRForms
+namespace FormsBoard.Domain.Forms.HR.NewHire
 {
     public static class NewHireData
     {

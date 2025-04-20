@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace FormsBoard.Data.HRForms
+namespace FormsBoard.Domain.Forms.HR.SeparatedEmployee
 {
     public static class SeparatedEmployeeData
     {

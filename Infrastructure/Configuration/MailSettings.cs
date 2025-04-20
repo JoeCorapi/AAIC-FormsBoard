@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FormsBoard.Data
+namespace FormsBoard.Infrastructure.Configuration
 {
     public class MailSettings
     {
