@@ -18,6 +18,9 @@ using FormsBoard.Infrastructure.Configuration;
 using FormsBoard.Infrastructure.Services;
 using FormsBoard.Application.Interfaces;
 using FormsBoard.Application.Services;
+using FormsBoard.Data.Context;
+using Microsoft.EntityFrameworkCore;
+using FormsBoard.Data.Repositories;
 
 
 Log.Logger = new LoggerConfiguration()
@@ -75,6 +78,9 @@ try
         options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
     });
 
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING")));
+
     builder.Services.AddRazorPages();
     builder.Services.AddServerSideBlazor()
         .AddMicrosoftIdentityConsentHandler()
@@ -84,6 +90,9 @@ try
     builder.Services.AddSingleton(builder.Configuration.GetSection("MailSettings").Get<MailSettings>());
     builder.Services.AddScoped<IToastService, ToastService>();
     builder.Services.AddScoped<IMailService, MailService>();
+    // Add repositories and services
+    builder.Services.AddScoped<IMileageFormRepository, MileageFormRepository>();
+    builder.Services.AddScoped<IMileageService, MileageService>();
 
     // Configure Serilog
     builder.Host.UseSerilog((ctx, serviceProvider, cfg) => {
@@ -98,6 +107,13 @@ try
     });
 
     var app = builder.Build();
+
+    // Ensure database is created and migrations are applied
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.Migrate();
+    }
 
     // Register Syncfusion license
     Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWXxfeHVSQ2dcUUF/WEc=");

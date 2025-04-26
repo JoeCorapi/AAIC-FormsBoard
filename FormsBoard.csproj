@@ -19,10 +19,16 @@
     <PackageReference Include="Blazored.Modal" Version="7.3.1" />
     <PackageReference Include="itext7" Version="8.0.3" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.13" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.13" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.15" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.15" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.15">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.15" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
     <PackageReference Include="Microsoft.Identity.Web" Version="3.7.1" />
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="3.7.1" />
     <PackageReference Include="Radzen.Blazor" Version="4.34.4" />
@@ -35,8 +41,6 @@
 
   <ItemGroup>
     <Folder Include="Application\DTOs\" />
-    <Folder Include="Data\Context\" />
-    <Folder Include="Data\Repositories\" />
     <Folder Include="Domain\Enums\" />
     <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
