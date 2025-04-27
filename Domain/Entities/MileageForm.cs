@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FormsBoard.Domain.Entities
 {
+    [Table("MileageForm")]
     public class MileageForm
     {
         public int Id { get; set; }

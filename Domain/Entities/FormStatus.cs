@@ -1,5 +1,8 @@
-﻿namespace FormsBoard.Domain.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace FormsBoard.Domain.Entities
 {
+    [Table("FormStatus")]
     public class FormStatus
     {
         public int Id { get; set; }

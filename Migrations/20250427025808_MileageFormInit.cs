@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FormsBoard.Migrations
 {
     /// <inheritdoc />
-    public partial class MilageFormInit : Migration
+    public partial class MileageFormInit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "FormStatuses",
+                name: "FormStatus",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -24,11 +24,11 @@ namespace FormsBoard.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FormStatuses", x => x.Id);
+                    table.PrimaryKey("PK_FormStatus", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "MileageForms",
+                name: "MileageForm",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -75,17 +75,17 @@ namespace FormsBoard.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MileageForms", x => x.Id);
+                    table.PrimaryKey("PK_MileageForm", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MileageForms_FormStatuses_FormStatusId",
+                        name: "FK_MileageForm_FormStatus_FormStatusId",
                         column: x => x.FormStatusId,
-                        principalTable: "FormStatuses",
+                        principalTable: "FormStatus",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "MileageLineItems",
+                name: "MileageLineItem",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -99,17 +99,17 @@ namespace FormsBoard.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MileageLineItems", x => x.Id);
+                    table.PrimaryKey("PK_MileageLineItem", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MileageLineItems_MileageForms_MileageFormId",
+                        name: "FK_MileageLineItem_MileageForm_MileageFormId",
                         column: x => x.MileageFormId,
-                        principalTable: "MileageForms",
+                        principalTable: "MileageForm",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
-                table: "FormStatuses",
+                table: "FormStatus",
                 columns: new[] { "Id", "Description", "Name" },
                 values: new object[,]
                 {
@@ -122,13 +122,13 @@ namespace FormsBoard.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_MileageForms_FormStatusId",
-                table: "MileageForms",
+                name: "IX_MileageForm_FormStatusId",
+                table: "MileageForm",
                 column: "FormStatusId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MileageLineItems_MileageFormId",
-                table: "MileageLineItems",
+                name: "IX_MileageLineItem_MileageFormId",
+                table: "MileageLineItem",
                 column: "MileageFormId");
         }
 
@@ -136,13 +136,13 @@ namespace FormsBoard.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "MileageLineItems");
+                name: "MileageLineItem");
 
             migrationBuilder.DropTable(
-                name: "MileageForms");
+                name: "MileageForm");
 
             migrationBuilder.DropTable(
-                name: "FormStatuses");
+                name: "FormStatus");
         }
     }
 }

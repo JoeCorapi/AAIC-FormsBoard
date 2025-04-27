@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FormsBoard.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250426225031_MilageFormInit")]
-    partial class MilageFormInit
+    [Migration("20250427025808_MileageFormInit")]
+    partial class MileageFormInit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,7 +41,7 @@ namespace FormsBoard.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FormStatuses");
+                    b.ToTable("FormStatus");
 
                     b.HasData(
                         new
@@ -214,7 +214,7 @@ namespace FormsBoard.Migrations
 
                     b.HasIndex("FormStatusId");
 
-                    b.ToTable("MileageForms");
+                    b.ToTable("MileageForm");
                 });
 
             modelBuilder.Entity("FormsBoard.Domain.Entities.MileageLineItem", b =>
@@ -253,7 +253,7 @@ namespace FormsBoard.Migrations
 
                     b.HasIndex("MileageFormId");
 
-                    b.ToTable("MileageLineItems");
+                    b.ToTable("MileageLineItem");
                 });
 
             modelBuilder.Entity("FormsBoard.Domain.Entities.MileageForm", b =>

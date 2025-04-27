@@ -1,0 +1,288 @@
+﻿@page "/mileageform/create"
+@page "/mileageform/edit/{FormId:int}"
+@using Domain.Entities
+@using Application.Services
+@using Application.Interfaces
+@inject IMileageService MileageService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<h3>@(FormId == null ? "Create New Mileage Form" : "Edit Mileage Form")</h3>
+
+<EditForm Model="@form" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="row">
+        <!-- Basic Form Information -->
+        <div class="col-md-4 mb-4">
+            <div class="form-group">
+                <label for="payTo">Pay To:</label>
+                <input type="text" id="payTo" class="form-control" @bind="form.UserDisplayName" />
+            </div>
+
+            <div class="form-group">
+                <label for="formDate">Date:</label>
+                <InputDate id="formDate" class="form-control" @bind-Value="form.DateSubmitted" />
+            </div>
+
+        </div>
+
+        <!-- Location Checkboxes -->
+        <div class="col-md-4">
+            <h4>Location</h4>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="locCorporate" @bind="form.LocationCorporate" />
+                <label class="form-check-label" for="locCorporate">Corporate</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="locLenoirCity" @bind="form.LocationLenoirCity" />
+                <label class="form-check-label" for="locLenoirCity">Lenoir City</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="locClarksville" @bind="form.LocationClarksville" />
+                <label class="form-check-label" for="locClarksville">Clarksville</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="locMaryville" @bind="form.LocationMaryville" />
+                <label class="form-check-label" for="locMaryville">Maryville</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="locCookeville" @bind="form.LocationCookeville" />
+                <label class="form-check-label" for="locCookeville">Cookeville</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="locMtJuliet" @bind="form.LocationMtJuliet" />
+                <label class="form-check-label" for="locMtJuliet">Mt. Juliet</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="locDickson" @bind="form.LocationDickson" />
+                <label class="form-check-label" for="locDickson">Dickson</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="locWeisgarber" @bind="form.LocationWeisgarber" />
+                <label class="form-check-label" for="locWeisgarber">Weisgarber</label>
+            </div>
+        </div>
+
+        <!-- Specialty Checkboxes -->
+        <div class="col-md-4">
+            <h4>Specialty</h4>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="specCorporate" @bind="form.SpecialtyCorporate" />
+                <label class="form-check-label" for="specCorporate">Corporate</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="specInfusion" @bind="form.SpecialtyInfusion" />
+                <label class="form-check-label" for="specInfusion">Infusion</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="specNursePractitioners" @bind="form.SpecialtyNursePractitioners" />
+                <label class="form-check-label" for="specNursePractitioners">Nurse Practitioners</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="specPhysicians" @bind="form.SpecialtyPhysicians" />
+                <label class="form-check-label" for="specPhysicians">Physicians</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="specSpecialtyMeds" @bind="form.SpecialtySpecialtyMeds" />
+                <label class="form-check-label" for="specSpecialtyMeds">Specialty Meds</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="specAllergy" @bind="form.SpecialtyAllergy" />
+                <label class="form-check-label" for="specAllergy">Allergy</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="specMarketing" @bind="form.SpecialtyMarketing" />
+                <label class="form-check-label" for="specMarketing">Marketing</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="specPharmacy" @bind="form.SpecialtyPharmacy" />
+                <label class="form-check-label" for="specPharmacy">Pharmacy</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="specScheduling" @bind="form.SpecialtyScheduling" />
+                <label class="form-check-label" for="specScheduling">Scheduling</label>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="specVaccine" @bind="form.SpecialtyVaccine" />
+                <label class="form-check-label" for="specVaccine">Vaccine</label>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="mt-4">Mileage Details</h4>
+
+    @if (form.LineItems != null && form.LineItems.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Start Location</th>
+                    <th>End Location</th>
+                    <th>Description</th>
+                    <th>Miles</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in form.LineItems)
+                {
+                    <tr>
+                        <td>
+                            <InputDate @bind-Value="item.TravelDate" class="form-control" />
+                        </td>
+                        <td>
+                            <InputText @bind-Value="item.StartLocation" class="form-control" />
+                        </td>
+                        <td>
+                            <InputText @bind-Value="item.EndLocation" class="form-control" />
+                        </td>
+                        <td>
+                            <InputText @bind-Value="item.Description" class="form-control" />
+                        </td>
+                        <td>
+                            <InputNumber @bind-Value="item.TotalMiles" class="form-control" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm" @onclick="() => RemoveLineItem(item)">
+                                <i class="oi oi-x"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" class="text-right"><strong>Total:</strong></td>
+                    <td><strong>@form.TotalMileage</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="text-right"><strong>mileage Rate:</strong></td>
+                    <td><strong>@form.MileageRate</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="text-right"><strong>Total mileage Reimbursement:</strong></td>
+                    <td><strong>$@form.TotalReimbursement</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    }
+    else
+    {
+        <p>No mileage entries yet. Click "Add Entry" to add a new line item.</p>
+    }
+
+    <button type="button" class="btn btn-secondary" @onclick="AddLineItem">
+        <i class="oi oi-plus"></i> Add Entry
+    </button>
+
+    <div class="form-group mt-4">
+        <button type="submit" class="btn btn-primary">Save Form</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+    </div>
+</EditForm>
+
+@if (form.RejectionReason != null)
+{
+    <div class="alert alert-warning mt-4">
+        <h5>This form was previously rejected</h5>
+        <p><strong>Rejected by:</strong> @form.RejectedByName</p>
+        <p><strong>Rejection reason:</strong> @form.RejectionReason</p>
+        <p>Please make necessary changes before resubmitting.</p>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int? FormId { get; set; }
+
+    private MileageForm form = new MileageForm();
+    private string userId;
+    private string userEmail;
+    private string userDisplayName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            // Store user information for later use
+            userId = user.FindFirst(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value;
+            userEmail = user.FindFirst(c => c.Type == "preferred_username")?.Value;
+            userDisplayName = user.FindFirst(c => c.Type == "name")?.Value;
+
+            if (FormId.HasValue)
+            {
+                var existingForm = await MileageService.GetFormDetailsAsync(FormId.Value);
+                if (existingForm != null && existingForm.UserId == userId)
+                {
+                    form = existingForm;
+                }
+                else
+                {
+                    NavigationManager.NavigateTo("/mileageform/my");
+                }
+            }
+            else
+            {
+                // Initialize a new form with default values
+                form = new MileageForm
+                    {
+                        UserId = userId,  // Set these values in the form itself
+                        UserEmail = userEmail,
+                        UserDisplayName = userDisplayName,
+                        DateSubmitted = DateTime.Today,
+                        MileageRate = 0.60m,
+                        LineItems = new List<MileageLineItem>()
+                    };
+            }
+        }
+    }
+
+    private void AddLineItem()
+    {
+        if (form.LineItems == null)
+        {
+            form.LineItems = new List<MileageLineItem>();
+        }
+
+        form.LineItems.Add(new MileageLineItem
+            {
+                TravelDate = DateTime.Today,
+                MileageFormId = form.Id
+            });
+    }
+
+    private void RemoveLineItem(MileageLineItem item)
+    {
+        form.LineItems.Remove(item);
+    }
+
+    private async Task HandleSubmit()
+    {
+        // Ensure user info is set
+        form.UserId = userId;
+        form.UserEmail = userEmail;
+
+        if (FormId.HasValue)
+        {
+            await MileageService.UpdateFormAsync(form);
+        }
+        else
+        {
+            // For new forms, we use the create method that sets the user info
+            await MileageService.CreateFormAsync(form, userId, userEmail, userDisplayName);
+        }
+
+        NavigationManager.NavigateTo("/mileageform/my");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/mileageform/my");
+    }
+}

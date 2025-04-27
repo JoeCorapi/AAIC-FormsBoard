@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FormsBoard.Domain.Entities
 {
+    [Table("MileageLineItem")]
     public class MileageLineItem
     {
         public int Id { get; set; }

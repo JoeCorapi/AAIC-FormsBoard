@@ -42,6 +42,8 @@
   <ItemGroup>
     <Folder Include="Application\DTOs\" />
     <Folder Include="Domain\Enums\" />
+    <Folder Include="Migrations\" />
+    <Folder Include="Pages\Managers\" />
     <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 

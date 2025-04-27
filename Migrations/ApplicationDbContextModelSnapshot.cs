@@ -38,7 +38,7 @@ namespace FormsBoard.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FormStatuses");
+                    b.ToTable("FormStatus");
 
                     b.HasData(
                         new
@@ -211,7 +211,7 @@ namespace FormsBoard.Migrations
 
                     b.HasIndex("FormStatusId");
 
-                    b.ToTable("MileageForms");
+                    b.ToTable("MileageForm");
                 });
 
             modelBuilder.Entity("FormsBoard.Domain.Entities.MileageLineItem", b =>
@@ -250,7 +250,7 @@ namespace FormsBoard.Migrations
 
                     b.HasIndex("MileageFormId");
 
-                    b.ToTable("MileageLineItems");
+                    b.ToTable("MileageLineItem");
                 });
 
             modelBuilder.Entity("FormsBoard.Domain.Entities.MileageForm", b =>
