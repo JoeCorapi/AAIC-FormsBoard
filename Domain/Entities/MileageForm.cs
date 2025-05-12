@@ -38,10 +38,6 @@ namespace FormsBoard.Domain.Entities
         public string AccountantDisplayName { get; set; }
         public DateTime? AccountingApprovalDate { get; set; }
 
-        // Payment tracking
-        public DateTime? PaymentDate { get; set; }
-        public string PaymentReference { get; set; }
-
         // Rejection tracking
         public string RejectionReason { get; set; }
         public string RejectedBy { get; set; }
@@ -83,17 +79,17 @@ namespace FormsBoard.Domain.Entities
         [Display(Name = "Total Reimbursement")]
         public decimal TotalReimbursement => TotalMileage * MileageRate;
 
-        private decimal CalculateTotalMileage()
+        private int CalculateTotalMileage()
         {
-            decimal total = 0;
+            int totalMiles = 0;
             if (LineItems != null)
             {
                 foreach (var item in LineItems)
                 {
-                    total += item.TotalMiles;
+                    totalMiles += item.TotalMiles;
                 }
             }
-            return total;
+            return totalMiles;
         }
     }
 }

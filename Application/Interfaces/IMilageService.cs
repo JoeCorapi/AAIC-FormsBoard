@@ -17,8 +17,8 @@ namespace FormsBoard.Application.Interfaces
         Task<bool> ManagerRejectAsync(int formId, string managerId, string managerName, string reason);
         Task<bool> AccountingApproveAsync(int formId, string accountantId, string accountantEmail, string accountantDisplayName);
         Task<bool> AccountingRejectAsync(int formId, string accountantId, string accountantName, string reason);
-        Task<bool> MarkAsPaidAsync(int formId, string paymentReference);
-        Task<bool> DiscardFormAsync(int formId);
+        Task<bool> DiscardFormAsync(int formId, string discardedById, string discardedByName, string reason);
+
         Task<IEnumerable<FormStatus>> GetFormStatusesAsync();
     }
 }

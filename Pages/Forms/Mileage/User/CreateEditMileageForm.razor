@@ -1,5 +1,5 @@
-﻿@page "/mileageform/create"
-@page "/mileageform/edit/{FormId:int}"
+﻿@page "/forms/mileage/create"
+@page "/forms/mileage/edit/{FormId:int}"
 @using Domain.Entities
 @using Application.Services
 @using Application.Interfaces
@@ -119,10 +119,10 @@
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Start Location</th>
-                    <th>End Location</th>
-                    <th>Description</th>
-                    <th>Miles</th>
+                    <th>Start (from)</th>
+                    <th>End (to)</th>
+                    <th>Description - Purpose</th>
+                    <th>Total Miles</th>
                     <th></th>
                 </tr>
             </thead>
@@ -159,11 +159,11 @@
                     <td><strong>@form.TotalMileage</strong></td>
                 </tr>
                 <tr>
-                    <td colspan="4" class="text-right"><strong>mileage Rate:</strong></td>
+                    <td colspan="4" class="text-right"><strong>Mileage Rate:</strong></td>
                     <td><strong>@form.MileageRate</strong></td>
                 </tr>
                 <tr>
-                    <td colspan="4" class="text-right"><strong>Total mileage Reimbursement:</strong></td>
+                    <td colspan="4" class="text-right"><strong>Total Mileage Reimbursement:</strong></td>
                     <td><strong>$@form.TotalReimbursement</strong></td>
                 </tr>
             </tfoot>
@@ -224,7 +224,7 @@
                 }
                 else
                 {
-                    NavigationManager.NavigateTo("/mileageform/my");
+                    NavigationManager.NavigateTo("/forms/mileage/my");
                 }
             }
             else
@@ -278,11 +278,11 @@
             await MileageService.CreateFormAsync(form, userId, userEmail, userDisplayName);
         }
 
-        NavigationManager.NavigateTo("/mileageform/my");
+        NavigationManager.NavigateTo("/forms/mileage/my");
     }
 
     private void Cancel()
     {
-        NavigationManager.NavigateTo("/mileageform/my");
+        NavigationManager.NavigateTo("/forms/mileage/my");
     }
 }

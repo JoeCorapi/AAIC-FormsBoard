@@ -28,7 +28,7 @@ namespace FormsBoard.Domain.Entities
         public string Description { get; set; }
 
         [Required]
-        [Range(0.1, 1000)]
-        public decimal TotalMiles { get; set; }
+        [Range(1, 1000)]
+        public int TotalMiles { get; set; }
     }
 }

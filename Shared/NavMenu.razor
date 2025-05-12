@@ -1,95 +1,128 @@
 ﻿@inject IConfiguration Configuration
 
 <div class="top-row pl-4 navbar navbar-dark" style="text-align:center">
-    <a class="navbar-brand flex-fill" href=""><b>AAIC-FormBoard</b></a>
-    <button class="navbar-toggler" @onclick="@ToggleNavMenu">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+	<a class="navbar-brand flex-fill" href=""><b>AAIC-FormBoard</b></a>
+	<button class="navbar-toggler" @onclick="@ToggleNavMenu">
+		<span class="navbar-toggler-icon"></span>
+	</button>
 </div>
 
 <div class="@NavMenuCssClass">
-    <ul class="nav flex-column">
-        <li class="nav-item px-2">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </li>
-        <li class="nav-item px-2">
-            <!----------------------- HR FORMS SUB-MENU -------------------------->
-            <AuthorizeView Roles="@String.Join(",", Configuration.GetSection("HRFormPermissions").Get<List<string>>().ToArray())">
-                <NavLink class="nav-link" @onclick="() => subMenuHr = !subMenuHr">
-                    <span class="oi oi-list-rich" aria-hidden="true"></span> HR
-                </NavLink>
-                @if (subMenuHr)
-                {
-                    <ul class="nav flex-column">
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="newhireform" @onclick="ToggleNavMenu">
-                                <span class="oi oi-list-rich" aria-hidden="true"></span> New Hires
-                            </NavLink>
-                        </li>
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="separatedemployeeform" @onclick="ToggleNavMenu">
-                                <span class="oi oi-list-rich" aria-hidden="true"></span> Employee Separation
-                            </NavLink>
-                        </li>
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="namechangerequestform" @onclick="ToggleNavMenu">
-                                <span class="oi oi-list-rich" aria-hidden="true"></span> Name Change Request
-                            </NavLink>
-                        </li>
-                    </ul>
-                }
-            </AuthorizeView>
+	<ul class="nav flex-column">
+		<li class="nav-item px-2">
+			<NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+				<span class="oi oi-home" aria-hidden="true"></span> Home
+			</NavLink>
+		</li>
+		<li class="nav-item px-2">
+			<!----------------------- GENERAL USERS FORMS -------------------------->
+			<NavLink class="nav-link" @onclick="()=>subMenuUser = !subMenuUser">
+				<span class="oi oi-list-rich" aria-hidden="true"></span> Forms
+			</NavLink>
+			@if (subMenuUser)
+			{
+				<ul class="nav flex-column">
+					<li class="nav-item px-3">
+						<NavLink class="nav-link" href="forms/mileage/my" @onclick="ToggleNavMenu">
+							<span class="oi oi-list-rich" aria-hidden="true"></span> Mileage
+						</NavLink>
+					</li>
+				</ul>
+			}
+			<!----------------------- HR FORMS SUB-MENU -------------------------->
+			<AuthorizeView Roles="@String.Join(",", Configuration.GetSection("HRFormPermissions").Get<List<string>>().ToArray())">
+				<NavLink class="nav-link" @onclick="() => subMenuHr = !subMenuHr">
+					<span class="oi oi-list-rich" aria-hidden="true"></span> HR
+				</NavLink>
+				@if (subMenuHr)
+				{
+					<ul class="nav flex-column">
+						<li class="nav-item px-3">
+							<NavLink class="nav-link" href="newhireform" @onclick="ToggleNavMenu">
+								<span class="oi oi-list-rich" aria-hidden="true"></span> New Hires
+							</NavLink>
+						</li>
+						<li class="nav-item px-3">
+							<NavLink class="nav-link" href="separatedemployeeform" @onclick="ToggleNavMenu">
+								<span class="oi oi-list-rich" aria-hidden="true"></span> Employee Separation
+							</NavLink>
+						</li>
+						<li class="nav-item px-3">
+							<NavLink class="nav-link" href="namechangerequestform" @onclick="ToggleNavMenu">
+								<span class="oi oi-list-rich" aria-hidden="true"></span> Name Change Request
+							</NavLink>
+						</li>
+					</ul>
+				}
+			</AuthorizeView>
 
-            <!----------------------- ACCOUNTING FORMS -------------------------->
-            <AuthorizeView Roles="@String.Join(",", Configuration.GetSection("AcctFormPermissions").Get<List<string>>().ToArray())">
-                <NavLink class="nav-link" @onclick="()=>subMenuAcc = !subMenuAcc">
-                    <span class="oi oi-list-rich" aria-hidden="true"></span> Accounting
-                </NavLink>
-                @if (subMenuAcc)
-                {
-                    <ul class="nav flex-column">
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="accounting/dashboard" @onclick="ToggleNavMenu">
-                                <span class="oi oi-list-rich" aria-hidden="true"></span> Daily Cover Sheet
-                            </NavLink>
-                        </li>
-                    </ul>
-                }
-            </AuthorizeView>
+			<!----------------------- MANAGERS FORMS SUB-MENU -------------------------->
+			<AuthorizeView Roles="@String.Join(",", Configuration.GetSection("ManagerFormPermissions").Get<List<string>>().ToArray())">
+				<NavLink class="nav-link" @onclick="() => subMenuMgr = !subMenuMgr">
+					<span class="oi oi-list-rich" aria-hidden="true"></span> Managers
+				</NavLink>
+				@if (subMenuMgr)
+				{
+					<ul class="nav flex-column">
+						<li class="nav-item px-3">
+							<NavLink class="nav-link" href="forms/mileage/managerReview" @onclick="ToggleNavMenu">
+								<span class="oi oi-list-rich" aria-hidden="true"></span> Mileage Review
+							</NavLink>
+						</li>
+					</ul>
+				}
+			</AuthorizeView>
 
-            <!----------------------- ADMINISTRATION PAGE -------------------------->
-            <AuthorizeView Roles="@String.Join(",", Configuration.GetSection("AdminFormPermissions").Get<List<string>>().ToArray())">
-                <NavLink class="nav-link" @onclick="()=>subMenuAdmin = !subMenuAdmin">
-                    <span class="oi oi-list-rich" aria-hidden="true"></span> Administration
-                </NavLink>
-                @if (subMenuAdmin)
-                {
-                    <ul class="nav flex-column">
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="administration" @onclick="ToggleNavMenu">
-                                <span class="oi oi-list-rich" aria-hidden="true"></span> PDF
-                            </NavLink>
-                        </li>
-                    </ul>
-                }
-            </AuthorizeView>
-        </li>
-    </ul>
+			<!----------------------- ACCOUNTING FORMS -------------------------->
+			<AuthorizeView Roles="@String.Join(",", Configuration.GetSection("AcctFormPermissions").Get<List<string>>().ToArray())">
+				<NavLink class="nav-link" @onclick="()=>subMenuAcc = !subMenuAcc">
+					<span class="oi oi-list-rich" aria-hidden="true"></span> Accounting
+				</NavLink>
+				@if (subMenuAcc)
+				{
+					<ul class="nav flex-column">
+						<li class="nav-item px-3">
+							<NavLink class="nav-link" href="forms/mileage/accountingReview" @onclick="ToggleNavMenu">
+								<span class="oi oi-list-rich" aria-hidden="true"></span> Mileage Review
+							</NavLink>
+						</li>
+					</ul>
+				}
+			</AuthorizeView>
+
+			<!----------------------- ADMINISTRATION PAGE -------------------------->
+			<AuthorizeView Roles="@String.Join(",", Configuration.GetSection("AdminFormPermissions").Get<List<string>>().ToArray())">
+				<NavLink class="nav-link" @onclick="()=>subMenuAdmin = !subMenuAdmin">
+					<span class="oi oi-list-rich" aria-hidden="true"></span> Administration
+				</NavLink>
+				@if (subMenuAdmin)
+				{
+					<ul class="nav flex-column">
+						<li class="nav-item px-3">
+							<NavLink class="nav-link" href="administration" @onclick="ToggleNavMenu">
+								<span class="oi oi-list-rich" aria-hidden="true"></span> PDF
+							</NavLink>
+						</li>
+					</ul>
+				}
+			</AuthorizeView>
+		</li>
+	</ul>
 </div>
 
 @code {
 
-    private bool collapseNavMenu = true;
-    private bool subMenuHr;
-    private bool subMenuAcc;
-    private bool subMenuAdmin;
+	private bool collapseNavMenu = true;
+	private bool subMenuUser;
+	private bool subMenuMgr;
+	private bool subMenuHr;
+	private bool subMenuAcc;
+	private bool subMenuAdmin;
 
-    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+	private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
+	private void ToggleNavMenu()
+	{
+		collapseNavMenu = !collapseNavMenu;
+	}
 }

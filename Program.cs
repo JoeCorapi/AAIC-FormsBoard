@@ -21,6 +21,7 @@ using FormsBoard.Application.Services;
 using FormsBoard.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using FormsBoard.Data.Repositories;
+using Microsoft.Extensions.Caching.Memory;
 
 
 Log.Logger = new LoggerConfiguration()
@@ -43,9 +44,10 @@ try
         options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
         // This is the critical one you're missing for sign-out
         options.DefaultSignOutScheme = OpenIdConnectDefaults.AuthenticationScheme;
-    }) 
+    })
     .AddMicrosoftIdentityWebApp(options =>
     {
+
         builder.Configuration.GetSection("AzureAd").Bind(options);
 
         var postLogoutRedirectUri = builder.Configuration["AzureAd:PostLogoutRedirectUri"];
@@ -59,9 +61,10 @@ try
                 context.Response.Redirect(postLogoutRedirectUri);
                 context.HandleResponse(); // This prevents further processing
                 return Task.CompletedTask;
-            }
+            },
         };
     });
+
     builder.Services.AddControllersWithViews()
         .AddMicrosoftIdentityUI();
 
@@ -74,7 +77,8 @@ try
             .Build();
     });
 
-    builder.Services.AddApplicationInsightsTelemetry(options => {
+    builder.Services.AddApplicationInsightsTelemetry(options =>
+    {
         options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
     });
 
@@ -95,7 +99,8 @@ try
     builder.Services.AddScoped<IMileageService, MileageService>();
 
     // Configure Serilog
-    builder.Host.UseSerilog((ctx, serviceProvider, cfg) => {
+    builder.Host.UseSerilog((ctx, serviceProvider, cfg) =>
+    {
         // Get the service provider so we can access the registered TelemetryConfiguration
         var telemetryConfig = serviceProvider.GetRequiredService<TelemetryConfiguration>();
 

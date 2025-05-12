@@ -1,9 +1,10 @@
-﻿using FormsBoard.Application.Interfaces;
-using FormsBoard.Data.Repositories;
-using FormsBoard.Domain.Entities;
-using System.Collections.Generic;
+﻿using System;
 using System.Threading.Tasks;
-using System;
+using System.Collections.Generic;
+using FormsBoard.Domain.Entities;
+using FormsBoard.Domain.FormModels;
+using FormsBoard.Data.Repositories;
+using FormsBoard.Application.Interfaces;
 
 namespace FormsBoard.Application.Services
 {
@@ -57,10 +58,10 @@ namespace FormsBoard.Application.Services
         {
             var form = await _repository.GetFormByIdAsync(formId);
 
-            if (form == null || form.FormStatusId != 1) // Only drafts can be submitted
+            if (form == null || form.FormStatusId != FormState.Draft) // Only drafts can be submitted
                 return false;
 
-            form.FormStatusId = 2; // Submitted
+            form.FormStatusId = FormState.Submitted; // Submitted
             await _repository.UpdateFormAsync(form);
 
             return true;
@@ -70,10 +71,10 @@ namespace FormsBoard.Application.Services
         {
             var form = await _repository.GetFormByIdAsync(formId);
 
-            if (form == null || form.FormStatusId != 2) // Only submitted forms can be approved
+            if (form == null || form.FormStatusId != FormState.Submitted) // Only submitted forms can be approved
                 return false;
 
-            form.FormStatusId = 3; // Manager Approved
+            form.FormStatusId = FormState.ManagerApproved; // Manager Approved
             form.ManagerId = managerId;
             form.ManagerEmail = managerEmail;
             form.ManagerDisplayName = managerDisplayName;
@@ -88,10 +89,10 @@ namespace FormsBoard.Application.Services
         {
             var form = await _repository.GetFormByIdAsync(formId);
 
-            if (form == null || form.FormStatusId != 2) // Only submitted forms can be rejected
+            if (form == null || form.FormStatusId != FormState.Submitted) // Only submitted forms can be rejected
                 return false;
 
-            form.FormStatusId = 1; // Back to Draft
+            form.FormStatusId = FormState.Draft; // Back to Draft
             form.RejectionReason = reason;
             form.RejectedBy = managerId;
             form.RejectedByName = managerName;
@@ -107,10 +108,10 @@ namespace FormsBoard.Application.Services
         {
             var form = await _repository.GetFormByIdAsync(formId);
 
-            if (form == null || form.FormStatusId != 3) // Only manager-approved forms can be approved by accounting
+            if (form == null || form.FormStatusId != FormState.ManagerApproved) // Only manager-approved forms can be approved by accounting
                 return false;
 
-            form.FormStatusId = 4; // Accounting Approved
+            form.FormStatusId = FormState.Completed; // Accounting Completed
             form.AccountantId = accountantId;
             form.AccountantEmail = accountantEmail;
             form.AccountantDisplayName = accountantDisplayName;
@@ -125,10 +126,10 @@ namespace FormsBoard.Application.Services
         {
             var form = await _repository.GetFormByIdAsync(formId);
 
-            if (form == null || form.FormStatusId != 3) // Only manager-approved forms can be rejected by accounting
+            if (form == null || form.FormStatusId != FormState.ManagerApproved) // Only manager-approved forms can be rejected by accounting
                 return false;
 
-            form.FormStatusId = 1; // Back to Draft
+            form.FormStatusId = FormState.Draft; // Back to Draft
             form.RejectionReason = reason;
             form.RejectedBy = accountantId;
             form.RejectedByName = accountantName;
@@ -140,30 +141,21 @@ namespace FormsBoard.Application.Services
             return true;
         }
 
-        public async Task<bool> MarkAsPaidAsync(int formId, string paymentReference)
+        public async Task<bool> DiscardFormAsync(int formId, string discardedById, string discardedByName, string reason)
         {
             var form = await _repository.GetFormByIdAsync(formId);
 
-            if (form == null || form.FormStatusId != 4) // Only accounting-approved forms can be marked as paid
+            // Invalid operation if form is not pending manager or accounting review (Submitted/MgrApproved)
+            if (form == null || (form.FormStatusId != FormState.Submitted && form.FormStatusId != FormState.ManagerApproved))
                 return false;
 
-            form.FormStatusId = 5; // Paid
-            form.PaymentDate = DateTime.Now;
-            form.PaymentReference = paymentReference;
-
-            await _repository.UpdateFormAsync(form);
-
-            return true;
-        }
-
-        public async Task<bool> DiscardFormAsync(int formId)
-        {
-            var form = await _repository.GetFormByIdAsync(formId);
-
-            if (form == null)
-                return false;
-
-            form.FormStatusId = 6; // Discarded
+            // Update to Discarded status
+            form.FormStatusId = FormState.Discarded; // Should be 6
+            form.RejectionReason = reason;
+            form.RejectedBy = discardedById;
+            form.RejectedByName = discardedByName;
+            form.RejectionDate = DateTime.Now;
+            form.RejectionPhase = form.FormStatusId == FormState.Submitted ? "Manager" : "Accounting"; // Track which phase it was discarded in
 
             await _repository.UpdateFormAsync(form);
 

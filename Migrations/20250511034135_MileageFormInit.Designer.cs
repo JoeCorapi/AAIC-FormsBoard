@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FormsBoard.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250427025808_MileageFormInit")]
+    [Migration("20250511034135_MileageFormInit")]
     partial class MileageFormInit
     {
         /// <inheritdoc />
@@ -65,18 +65,12 @@ namespace FormsBoard.Migrations
                         new
                         {
                             Id = 4,
-                            Description = "Approved by accounting for payment",
-                            Name = "Accounting Approved"
+                            Description = "Accounting approved and Completed",
+                            Name = "Completed"
                         },
                         new
                         {
                             Id = 5,
-                            Description = "Reimbursement has been processed",
-                            Name = "Paid"
-                        },
-                        new
-                        {
-                            Id = 6,
                             Description = "Form has been discarded",
                             Name = "Discarded"
                         });

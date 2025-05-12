@@ -1,0 +1,206 @@
+﻿@page "/forms/mileage/managerReview"
+@using Domain.Entities
+@using Domain.FormModels
+@using Application.Services
+@using Application.Interfaces
+@inject IMileageService MileageService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+@*@attribute [Authorize(Roles = "ApprovalManagers")]*@
+
+<h3>Pending Manager Approvals</h3>
+
+@if (pendingForms == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!pendingForms.Any())
+{
+    <p>There are no forms pending your approval.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Employee</th>
+                <th>Total Miles</th>
+                <th>Reimbursement Amount</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var form in pendingForms)
+            {
+                <tr>
+                    <td>@form.DateSubmitted.ToShortDateString()</td>
+                    <td>@form.UserDisplayName</td>
+                    <td>@form.TotalMileage</td>
+                    <td>$@form.TotalReimbursement.ToString("F2")</td>
+                    <td>
+                        <a href="@($"forms/mileage/view/{form.Id}")" class="btn btn-sm btn-info">
+                            <i class="oi oi-eye"></i> View
+                        </a>
+                        <button class="btn btn-sm btn-success" @onclick="() => ApproveForm(form)">
+                            <i class="oi oi-check"></i> Approve
+                        </button>
+                        <button class="btn btn-sm btn-warning" @onclick="() => ShowRejectDialog(form)">
+                            <i class="oi oi-x"></i> Reject
+                        </button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => ShowDiscardDialog(form)">
+                            <i class="oi oi-trash"></i> Discard
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (showRejectDialog)
+{
+    <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.4);" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Form</h5>
+                    <button type="button" class="close" @onclick="CancelReject">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="rejectionReason">Please provide a reason for rejection:</label>
+                        <textarea id="rejectionReason" class="form-control" rows="3" @bind="rejectionReason"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelReject">Cancel</button>
+                    <button type="button" class="btn btn-warning" @onclick="RejectForm" disabled="@string.IsNullOrEmpty(rejectionReason)">
+                        Reject Form
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (showDiscardDialog)
+{
+    <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.4);" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Discard Form</h5>
+                    <button type="button" class="close" @onclick="CancelDiscard">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to discard this form? This action cannot be undone.</p>
+                    <div class="form-group">
+                        <label for="discardReason">Please provide a reason:</label>
+                        <textarea id="discardReason" class="form-control" rows="3" @bind="discardReason"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelDiscard">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="DiscardForm" disabled="@string.IsNullOrEmpty(discardReason)">
+                        Discard Form
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private IEnumerable<MileageForm> pendingForms;
+    private string userId;
+    private string userEmail;
+    private string userDisplayName;
+    private bool showRejectDialog = false;
+    private MileageForm selectedForm;
+    private string rejectionReason;
+    private bool showDiscardDialog = false;
+    private string discardReason;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        var d = (user.Identity.IsAuthenticated);
+        var f = user.IsInRole("ApprovalManagers");
+
+        if (user.Identity.IsAuthenticated && user.IsInRole("ApprovalManagers"))
+        {
+            userId = user.FindFirst(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value;
+            userEmail = user.FindFirst(c => c.Type == "preferred_username")?.Value;
+            userDisplayName = user.FindFirst(c => c.Type == "name")?.Value;
+
+        pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted); // Status 2 = Submitted
+        }
+    }
+
+    private async Task ApproveForm(MileageForm form)
+    {
+        await MileageService.ManagerApproveAsync(form.Id, userId, userEmail, userDisplayName);
+        pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted);
+    }
+
+    private void ShowRejectDialog(MileageForm form)
+    {
+        selectedForm = form;
+        rejectionReason = string.Empty;
+        showRejectDialog = true;
+    }
+
+    private void CancelReject()
+    {
+        showRejectDialog = false;
+        selectedForm = null;
+        rejectionReason = string.Empty;
+    }
+
+    private async Task RejectForm()
+    {
+        if (selectedForm != null && !string.IsNullOrEmpty(rejectionReason))
+        {
+            await MileageService.ManagerRejectAsync(selectedForm.Id, userId, userDisplayName, rejectionReason);
+            showRejectDialog = false;
+            selectedForm = null;
+            rejectionReason = string.Empty;
+            pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted);
+        }
+    }
+
+    private void ShowDiscardDialog(MileageForm form)
+    {
+        selectedForm = form;
+        discardReason = string.Empty;
+        showDiscardDialog = true;
+    }
+
+    private void CancelDiscard()
+    {
+        showDiscardDialog = false;
+        selectedForm = null;
+        discardReason = string.Empty;
+    }
+
+    private async Task DiscardForm()
+    {
+        if (selectedForm != null && !string.IsNullOrEmpty(discardReason))
+        {
+            await MileageService.DiscardFormAsync(selectedForm.Id, userId, userDisplayName, discardReason);
+            showDiscardDialog = false;
+            selectedForm = null;
+            discardReason = string.Empty;
+
+            // Refresh the list of pending forms
+            pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted);
+        }
+    }
+}

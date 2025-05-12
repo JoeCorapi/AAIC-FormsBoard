@@ -116,9 +116,8 @@ namespace FormsBoard.Migrations
                     { 1, "Form is being prepared by employee", "Draft" },
                     { 2, "Form submitted for manager review", "Submitted" },
                     { 3, "Approved by manager, awaiting accounting review", "Manager Approved" },
-                    { 4, "Approved by accounting for payment", "Accounting Approved" },
-                    { 5, "Reimbursement has been processed", "Paid" },
-                    { 6, "Form has been discarded", "Discarded" }
+                    { 4, "Accounting approved and Completed", "Completed" },
+                    { 5, "Form has been discarded", "Discarded" }
                 });
 
             migrationBuilder.CreateIndex(

@@ -62,18 +62,12 @@ namespace FormsBoard.Migrations
                         new
                         {
                             Id = 4,
-                            Description = "Approved by accounting for payment",
-                            Name = "Accounting Approved"
+                            Description = "Accounting approved and Completed",
+                            Name = "Completed"
                         },
                         new
                         {
                             Id = 5,
-                            Description = "Reimbursement has been processed",
-                            Name = "Paid"
-                        },
-                        new
-                        {
-                            Id = 6,
                             Description = "Form has been discarded",
                             Name = "Discarded"
                         });

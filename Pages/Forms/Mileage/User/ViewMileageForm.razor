@@ -1,0 +1,263 @@
+﻿@page "/forms/mileage/view/{FormId:int}"
+@using Domain.Entities
+@using Domain.FormModels
+@using Application.Interfaces
+@using Application.Services
+@inject IMileageService MileageService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
+<h3>Mileage Form Details</h3>
+
+@if (form == null)
+{
+	<p><em>Loading...</em></p>
+}
+else
+{
+	<div class="card mb-4">
+		<div class="card-header d-flex justify-content-between align-items-center">
+			<div>
+				<h4>Form #@form.Id</h4>
+				<div>
+					<span class="@GetStatusCssClass(form.Status.Id)">@form.Status.Name</span>
+					<span class="ml-3">Submitted: @form.DateSubmitted.ToShortDateString()</span>
+				</div>
+			</div>
+			<div>
+				@if (form.FormStatusId == 1) // Draft
+				{
+					<a href="@($"forms/mileage/edit/{form.Id}")" class="btn btn-primary mr-2">
+						<i class="oi oi-pencil"></i> Edit
+					</a>
+					<button class="btn btn-success" @onclick="SubmitForm">
+						<i class="oi oi-check"></i> Submit
+					</button>
+				}
+				<a href="/forms/mileage/my" class="btn btn-secondary ml-2">
+					<i class="oi oi-arrow-left"></i> Back
+				</a>
+			</div>
+		</div>
+
+		<div class="card-body">
+			<div class="row">
+				<div class="col-md-6">
+					<h5>Locations</h5>
+					<ul class="list-group mb-3">
+						@if (form.LocationCorporate)
+						{
+							<li class="list-group-item">Corporate</li>
+						}
+						@if (form.LocationLenoirCity)
+						{
+							<li class="list-group-item">Lenoir City</li>
+						}
+						@if (form.LocationClarksville)
+						{
+							<li class="list-group-item">Clarksville</li>
+						}
+						@if (form.LocationMaryville)
+						{
+							<li class="list-group-item">Maryville</li>
+						}
+						@if (form.LocationCookeville)
+						{
+							<li class="list-group-item">Cookeville</li>
+						}
+						@if (form.LocationMtJuliet)
+						{
+							<li class="list-group-item">Mt. Juliet</li>
+						}
+						@if (form.LocationDickson)
+						{
+							<li class="list-group-item">Dickson</li>
+						}
+						@if (form.LocationWeisgarber)
+						{
+							<li class="list-group-item">Weisgarber</li>
+						}
+					</ul>
+				</div>
+
+				<div class="col-md-6">
+					<h5>Specialties</h5>
+					<ul class="list-group mb-3">
+						@if (form.SpecialtyCorporate)
+						{
+							<li class="list-group-item">Corporate</li>
+						}
+						@if (form.SpecialtyInfusion)
+						{
+							<li class="list-group-item">Infusion</li>
+						}
+						@if (form.SpecialtyNursePractitioners)
+						{
+							<li class="list-group-item">Nurse Practitioners</li>
+						}
+						@if (form.SpecialtyPhysicians)
+						{
+							<li class="list-group-item">Physicians</li>
+						}
+						@if (form.SpecialtySpecialtyMeds)
+						{
+							<li class="list-group-item">Specialty Meds</li>
+						}
+						@if (form.SpecialtyAllergy)
+						{
+							<li class="list-group-item">Allergy</li>
+						}
+						@if (form.SpecialtyMarketing)
+						{
+							<li class="list-group-item">Marketing</li>
+						}
+						@if (form.SpecialtyPharmacy)
+						{
+							<li class="list-group-item">Pharmacy</li>
+						}
+						@if (form.SpecialtyScheduling)
+						{
+							<li class="list-group-item">Scheduling</li>
+						}
+						@if (form.SpecialtyVaccine)
+						{
+							<li class="list-group-item">Vaccine</li>
+						}
+					</ul>
+				</div>
+			</div>
+
+			<h5 class="mt-3">Mileage Details</h5>
+
+			@if (form.LineItems != null && form.LineItems.Any())
+			{
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>Date</th>
+							<th>Start Location</th>
+							<th>End Location</th>
+							<th>Description</th>
+							<th>Miles</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var item in form.LineItems)
+						{
+							<tr>
+								<td>@item.TravelDate.ToShortDateString()</td>
+								<td>@item.StartLocation</td>
+								<td>@item.EndLocation</td>
+								<td>@item.Description</td>
+								<td>@item.TotalMiles</td>
+							</tr>
+						}
+					</tbody>
+					<tfoot>
+						<tr>
+							<td colspan="4" class="text-right"><strong>Total Miles:</strong></td>
+							<td><strong>@form.TotalMileage</strong></td>
+						</tr>
+						<tr>
+							<td colspan="4" class="text-right"><strong>Reimbursement Rate:</strong></td>
+							<td><strong>$@form.MileageRate.ToString("F2")</strong></td>
+						</tr>
+						<tr>
+							<td colspan="4" class="text-right"><strong>Total Reimbursement:</strong></td>
+							<td><strong>$@form.TotalReimbursement.ToString("F2")</strong></td>
+						</tr>
+					</tfoot>
+				</table>
+			}
+			else
+			{
+				<p>No mileage entries found.</p>
+			}
+
+			@* Display different approval information based on status name *@
+			@if (form.Status.Id == FormState.ManagerApproved || form.Status.Id == FormState.Completed)
+			{
+				<div class="alert alert-info mt-3">
+					<h5>Approval Information</h5>
+					<p><strong>Approved by:</strong> @form.ManagerDisplayName</p>
+					<p><strong>Approval Date:</strong> @form.ApprovalDate?.ToShortDateString()</p>
+				</div>
+			}
+
+			@if (form.Status.Id == FormState.Completed)
+			{
+				<div class="alert alert-success mt-3">
+					<h5>Accounting Approval</h5>
+					<p><strong>Approved by:</strong> @form.AccountantDisplayName</p>
+					<p><strong>Approval Date:</strong> @form.AccountingApprovalDate?.ToShortDateString()</p>
+				</div>
+			}
+
+
+			@if (form.Status.Id == FormState.Discarded)
+			{
+				<div class="alert alert-danger mt-3">
+					<h5>Form Discarded</h5>
+					<p><strong>Discarded by:</strong> @form.RejectedByName</p>
+					<p><strong>Date:</strong> @form.RejectionDate?.ToShortDateString()</p>
+					<p><strong>Reason:</strong> @form.RejectionReason</p>
+				</div>
+			}
+
+			@if (!string.IsNullOrEmpty(form.RejectionReason) && form.Status.Id != FormState.Discarded)
+			{
+				<div class="alert alert-warning mt-3">
+					<h5>Rejection Information</h5>
+					<p><strong>Rejected by:</strong> @form.RejectedByName</p>
+					<p><strong>Rejection Date:</strong> @form.RejectionDate?.ToShortDateString()</p>
+					<p><strong>Rejection Phase:</strong> @form.RejectionPhase</p>
+					<p><strong>Reason:</strong> @form.RejectionReason</p>
+				</div>
+			}
+		</div>
+	</div>
+}
+
+@code {
+	[Parameter]
+	public int FormId { get; set; }
+
+	private MileageForm form;
+	private string userId;
+
+	protected override async Task OnInitializedAsync()
+	{
+		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+
+		if (user.Identity.IsAuthenticated)
+		{
+			userId = user.FindFirst(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value;
+			form = await MileageService.GetFormDetailsAsync(FormId);
+
+			if (form == null || (form.UserId != userId && !user.IsInRole("Manager") && !user.IsInRole("Accounting")))
+			{
+				NavigationManager.NavigateTo("/forms/mileage/my");
+			}
+		}
+	}
+
+	private string GetStatusCssClass(int state)
+	{
+		return state switch
+		{
+			FormState.Draft => "badge badge-secondary",
+			FormState.Submitted => "badge badge-primary",
+			FormState.ManagerApproved => "badge badge-info",
+			FormState.Completed => "badge badge-success",
+			FormState.Discarded => "badge badge-danger",
+			_ => "badge badge-light"
+		};
+	}
+
+	private async Task SubmitForm()
+	{
+		await MileageService.SubmitFormAsync(form.Id);
+		form = await MileageService.GetFormDetailsAsync(FormId);
+	}
+}

@@ -1,12 +1,18 @@
-﻿@page "/mileageform/my"
+﻿@page "/forms/mileage/my"
 @using Domain.Entities
+@using Domain.FormModels
 @using Application.Interfaces
 @using Application.Services
 @inject IMileageService MileageService
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 
-<h3>My Mileage Forms</h3>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>My Mileage Forms</h3>
+    <button class="btn btn-success" @onclick="NavigateToCreate">
+        <i class="oi oi-plus"></i> Create New Form
+    </button>
+</div>
 
 @if (forms == null)
 {
@@ -14,11 +20,12 @@
 }
 else if (!forms.Any())
 {
-    <p>You don't have any mileage forms yet. <a href="mileageform/create">Create a new form</a>.</p>
+    <p>You don't have any mileage forms yet.</p>
 }
 else
 {
     <table class="table">
+        <!-- Table content remains the same -->
         <thead>
             <tr>
                 <th>Date</th>
@@ -34,10 +41,10 @@ else
                 <tr>
                     <td>@form.DateSubmitted.ToShortDateString()</td>
                     <td>
-                        <span class="@GetStatusCssClass(form.Status.Name)">
+                        <span class="@GetStatusCssClass(form.Status.Id)">
                             @form.Status.Name
                         </span>
-                        @if (!string.IsNullOrEmpty(form.RejectionReason))
+                        @if (!string.IsNullOrEmpty(form.RejectionReason) && form.Status.Id != FormState.Discarded)
                         {
                             <span class="badge badge-warning ml-2" title="@form.RejectionReason">
                                 <i class="oi oi-warning"></i>
@@ -47,13 +54,13 @@ else
                     <td>@form.TotalMileage</td>
                     <td>$@form.TotalReimbursement.ToString("F2")</td>
                     <td>
-                        <a href="@($"mileageform/view/{form.Id}")" class="btn btn-sm btn-info">
+                        <a href="@($"forms/mileage/view/{form.Id}")" class="btn btn-sm btn-info">
                             <i class="oi oi-eye"></i> View
                         </a>
 
-                        @if (form.FormStatusId == 1) // Draft
+                        @if (form.FormStatusId == FormState.Draft) // Draft
                         {
-                            <a href="@($"mileageform/edit/{form.Id}")" class="btn btn-sm btn-primary">
+                            <a href="@($"forms/mileage/edit/{form.Id}")" class="btn btn-sm btn-primary">
                                 <i class="oi oi-pencil"></i> Edit
                             </a>
                             <button class="btn btn-sm btn-success" @onclick="() => SubmitForm(form.Id)">
@@ -72,6 +79,7 @@ else
 
 @if (showDeleteConfirm)
 {
+    <!-- Delete confirmation modal remains the same -->
     <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.4);" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -111,16 +119,15 @@ else
         }
     }
 
-    private string GetStatusCssClass(string status)
+    private string GetStatusCssClass(int state)
     {
-        return status switch
+        return state switch
         {
-            "Draft" => "badge badge-secondary",
-            "Submitted" => "badge badge-primary",
-            "Manager Approved" => "badge badge-info",
-            "Accounting Approved" => "badge badge-success",
-            "Paid" => "badge badge-dark",
-            "Discarded" => "badge badge-danger",
+            FormState.Draft => "badge badge-secondary",
+            FormState.Submitted => "badge badge-primary",
+            FormState.ManagerApproved => "badge badge-info",
+            FormState.Completed => "badge badge-success",
+            FormState.Discarded => "badge badge-danger",
             _ => "badge badge-light"
         };
     }
@@ -147,5 +154,10 @@ else
         await MileageService.DeleteFormAsync(formToDeleteId);
         showDeleteConfirm = false;
         forms = await MileageService.GetUserFormsAsync(userId);
+    }
+
+    private void NavigateToCreate()
+    {
+        NavigationManager.NavigateTo("forms/mileage/create");
     }
 }
