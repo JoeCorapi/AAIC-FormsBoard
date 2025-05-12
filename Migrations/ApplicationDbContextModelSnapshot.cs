@@ -62,7 +62,7 @@ namespace FormsBoard.Migrations
                         new
                         {
                             Id = 4,
-                            Description = "Accounting approved and Completed",
+                            Description = "Accounting approved and completed",
                             Name = "Completed"
                         },
                         new
@@ -137,12 +137,6 @@ namespace FormsBoard.Migrations
 
                     b.Property<decimal>("MileageRate")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("PaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PaymentReference")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RejectedBy")
                         .HasColumnType("nvarchar(max)");
@@ -234,8 +228,8 @@ namespace FormsBoard.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<decimal>("TotalMiles")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("TotalMiles")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("TravelDate")
                         .HasColumnType("datetime2");

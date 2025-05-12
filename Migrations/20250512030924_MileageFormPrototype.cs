@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FormsBoard.Migrations
 {
     /// <inheritdoc />
-    public partial class MileageFormInit : Migration
+    public partial class MileageFormPrototype : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -46,8 +46,6 @@ namespace FormsBoard.Migrations
                     AccountantEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AccountantDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AccountingApprovalDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    PaymentReference = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RejectionReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RejectedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RejectedByName = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -95,7 +93,7 @@ namespace FormsBoard.Migrations
                     StartLocation = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     EndLocation = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    TotalMiles = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    TotalMiles = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -116,7 +114,7 @@ namespace FormsBoard.Migrations
                     { 1, "Form is being prepared by employee", "Draft" },
                     { 2, "Form submitted for manager review", "Submitted" },
                     { 3, "Approved by manager, awaiting accounting review", "Manager Approved" },
-                    { 4, "Accounting approved and Completed", "Completed" },
+                    { 4, "Accounting approved and completed", "Completed" },
                     { 5, "Form has been discarded", "Discarded" }
                 });
 
