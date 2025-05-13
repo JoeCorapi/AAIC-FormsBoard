@@ -7,192 +7,322 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 
-<h3>@(FormId == null ? "Create New Mileage Form" : "Edit Mileage Form")</h3>
-
-<EditForm Model="@form" OnValidSubmit="HandleSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <div class="row">
-        <!-- Basic Form Information -->
-        <div class="col-md-4 mb-4">
-            <div class="form-group">
-                <label for="payTo">Pay To:</label>
-                <input type="text" id="payTo" class="form-control" @bind="form.UserDisplayName" />
-            </div>
-
-            <div class="form-group">
-                <label for="formDate">Date:</label>
-                <InputDate id="formDate" class="form-control" @bind-Value="form.DateSubmitted" />
-            </div>
-
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <!-- Form Header with Organization Name -->
+        <div class="card-header bg-primary text-white text-center py-4">
+            <h2 class="mb-0">Allergy, Asthma and Immunology Center</h2>
+            <h3 class="mt-2">Auto Mileage Reimbursement Request</h3>
+            <p class="mb-0 mt-2">
+                <small>@(FormId == null ? "Create New Form" : $"Edit Form #{FormId}")</small>
+            </p>
         </div>
 
-        <!-- Location Checkboxes -->
-        <div class="col-md-4">
-            <h4>Location</h4>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="locCorporate" @bind="form.LocationCorporate" />
-                <label class="form-check-label" for="locCorporate">Corporate</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="locLenoirCity" @bind="form.LocationLenoirCity" />
-                <label class="form-check-label" for="locLenoirCity">Lenoir City</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="locClarksville" @bind="form.LocationClarksville" />
-                <label class="form-check-label" for="locClarksville">Clarksville</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="locMaryville" @bind="form.LocationMaryville" />
-                <label class="form-check-label" for="locMaryville">Maryville</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="locCookeville" @bind="form.LocationCookeville" />
-                <label class="form-check-label" for="locCookeville">Cookeville</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="locMtJuliet" @bind="form.LocationMtJuliet" />
-                <label class="form-check-label" for="locMtJuliet">Mt. Juliet</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="locDickson" @bind="form.LocationDickson" />
-                <label class="form-check-label" for="locDickson">Dickson</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="locWeisgarber" @bind="form.LocationWeisgarber" />
-                <label class="form-check-label" for="locWeisgarber">Weisgarber</label>
-            </div>
-        </div>
+        <EditForm Model="@form" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
 
-        <!-- Specialty Checkboxes -->
-        <div class="col-md-4">
-            <h4>Specialty</h4>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="specCorporate" @bind="form.SpecialtyCorporate" />
-                <label class="form-check-label" for="specCorporate">Corporate</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="specInfusion" @bind="form.SpecialtyInfusion" />
-                <label class="form-check-label" for="specInfusion">Infusion</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="specNursePractitioners" @bind="form.SpecialtyNursePractitioners" />
-                <label class="form-check-label" for="specNursePractitioners">Nurse Practitioners</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="specPhysicians" @bind="form.SpecialtyPhysicians" />
-                <label class="form-check-label" for="specPhysicians">Physicians</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="specSpecialtyMeds" @bind="form.SpecialtySpecialtyMeds" />
-                <label class="form-check-label" for="specSpecialtyMeds">Specialty Meds</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="specAllergy" @bind="form.SpecialtyAllergy" />
-                <label class="form-check-label" for="specAllergy">Allergy</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="specMarketing" @bind="form.SpecialtyMarketing" />
-                <label class="form-check-label" for="specMarketing">Marketing</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="specPharmacy" @bind="form.SpecialtyPharmacy" />
-                <label class="form-check-label" for="specPharmacy">Pharmacy</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="specScheduling" @bind="form.SpecialtyScheduling" />
-                <label class="form-check-label" for="specScheduling">Scheduling</label>
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="specVaccine" @bind="form.SpecialtyVaccine" />
-                <label class="form-check-label" for="specVaccine">Vaccine</label>
-            </div>
-        </div>
-    </div>
+            <div class="card-body">
+                <!-- Top section with Pay To and Date -->
+                <div class="row mb-4 pb-3 border-bottom">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Pay to:</label>
+                            <input type="text" class="form-control" @bind="form.UserDisplayName"
+                                   placeholder="Employee Name" />
+                            <ValidationMessage For="@(() => form.UserDisplayName)" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Date:</label>
+                            <InputDate class="form-control" @bind-Value="form.DateSubmitted" />
+                            <ValidationMessage For="@(() => form.DateSubmitted)" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Rate:</label>
+                            <div class="form-control-plaintext h5">$@form.MileageRate.ToString("F2")</div>
+                        </div>
+                    </div>
+                </div>
 
-    <h4 class="mt-4">Mileage Details</h4>
+                <!-- Location and Specialty Sections -->
+                <div class="row mb-4">
+                    <!-- Location of Expense -->
+                    <div class="col-md-6">
+                        <div class="border rounded p-3">
+                            <h5 class="border-bottom pb-2 mb-3">Location of Expense</h5>
+                            <p class="text-muted small mb-3">Check all that apply</p>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="locCorporate"
+                                               @bind="form.LocationCorporate" />
+                                        <label class="form-check-label" for="locCorporate">Corporate</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="locLenoirCity"
+                                               @bind="form.LocationLenoirCity" />
+                                        <label class="form-check-label" for="locLenoirCity">Lenoir City</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="locClarksville"
+                                               @bind="form.LocationClarksville" />
+                                        <label class="form-check-label" for="locClarksville">Clarksville</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="locMaryville"
+                                               @bind="form.LocationMaryville" />
+                                        <label class="form-check-label" for="locMaryville">Maryville</label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="locCookeville"
+                                               @bind="form.LocationCookeville" />
+                                        <label class="form-check-label" for="locCookeville">Cookeville</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="locMtJuliet"
+                                               @bind="form.LocationMtJuliet" />
+                                        <label class="form-check-label" for="locMtJuliet">Mt. Juliet</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="locDickson"
+                                               @bind="form.LocationDickson" />
+                                        <label class="form-check-label" for="locDickson">Dickson</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="locWeisgarber"
+                                               @bind="form.LocationWeisgarber" />
+                                        <label class="form-check-label" for="locWeisgarber">Weisgarber</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-    @if (form.LineItems != null && form.LineItems.Any())
-    {
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Start (from)</th>
-                    <th>End (to)</th>
-                    <th>Description - Purpose</th>
-                    <th>Total Miles</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in form.LineItems)
+                    <!-- Specialty/Service/Category -->
+                    <div class="col-md-6">
+                        <div class="border rounded p-3">
+                            <h5 class="border-bottom pb-2 mb-3">Specialty/Service/Category</h5>
+                            <p class="text-muted small mb-3">Check all that apply</p>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="specCorporate"
+                                               @bind="form.SpecialtyCorporate" />
+                                        <label class="form-check-label" for="specCorporate">Corporate</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="specInfusion"
+                                               @bind="form.SpecialtyInfusion" />
+                                        <label class="form-check-label" for="specInfusion">Infusion</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="specNursePractitioners"
+                                               @bind="form.SpecialtyNursePractitioners" />
+                                        <label class="form-check-label" for="specNursePractitioners">Nurse Practitioners</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="specPhysicians"
+                                               @bind="form.SpecialtyPhysicians" />
+                                        <label class="form-check-label" for="specPhysicians">Physicians</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="specSpecialtyMeds"
+                                               @bind="form.SpecialtySpecialtyMeds" />
+                                        <label class="form-check-label" for="specSpecialtyMeds">Specialty Meds</label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="specAllergy"
+                                               @bind="form.SpecialtyAllergy" />
+                                        <label class="form-check-label" for="specAllergy">Allergy</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="specMarketing"
+                                               @bind="form.SpecialtyMarketing" />
+                                        <label class="form-check-label" for="specMarketing">Marketing</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="specPharmacy"
+                                               @bind="form.SpecialtyPharmacy" />
+                                        <label class="form-check-label" for="specPharmacy">Pharmacy</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="specScheduling"
+                                               @bind="form.SpecialtyScheduling" />
+                                        <label class="form-check-label" for="specScheduling">Scheduling</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" id="specVaccine"
+                                               @bind="form.SpecialtyVaccine" />
+                                        <label class="form-check-label" for="specVaccine">Vaccine</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Note about multiple specialties -->
+                @if (CountCheckedSpecialties() > 1 || CountCheckedLocations() > 1)
                 {
-                    <tr>
-                        <td>
-                            <InputDate @bind-Value="item.TravelDate" class="form-control" />
-                        </td>
-                        <td>
-                            <InputText @bind-Value="item.StartLocation" class="form-control" />
-                        </td>
-                        <td>
-                            <InputText @bind-Value="item.EndLocation" class="form-control" />
-                        </td>
-                        <td>
-                            <InputText @bind-Value="item.Description" class="form-control" />
-                        </td>
-                        <td>
-                            <InputNumber @bind-Value="item.TotalMiles" class="form-control" />
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-danger btn-sm" @onclick="() => RemoveLineItem(item)">
-                                <i class="oi oi-x"></i>
-                            </button>
-                        </td>
-                    </tr>
+                    <div class="alert alert-info mb-4">
+                        <i class="oi oi-info"></i> Two or more specialties/locations are checked. Please show allocation below.
+                    </div>
                 }
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="4" class="text-right"><strong>Total:</strong></td>
-                    <td><strong>@form.TotalMileage</strong></td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="text-right"><strong>Mileage Rate:</strong></td>
-                    <td><strong>@form.MileageRate</strong></td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="text-right"><strong>Total Mileage Reimbursement:</strong></td>
-                    <td><strong>$@form.TotalReimbursement</strong></td>
-                </tr>
-            </tfoot>
-        </table>
-    }
-    else
+
+                <!-- Mileage details section -->
+                <div class="mb-4">
+                    <h5 class="border-bottom pb-2 mb-3">Mileage Details</h5>
+
+                    @if (form.LineItems != null && form.LineItems.Any())
+                    {
+                        <table class="table table-bordered table-striped">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Start (from)</th>
+                                    <th>End (to)</th>
+                                    <th>Description -- Purpose</th>
+                                    <th>Total Miles</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in form.LineItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <InputDate @bind-Value="item.TravelDate" class="form-control form-control-sm" />
+                                            <ValidationMessage For="@(() => item.TravelDate)" />
+                                        </td>
+                                        <td>
+                                            <InputText @bind-Value="item.StartLocation" class="form-control form-control-sm"
+                                                       placeholder="Starting location" />
+                                            <ValidationMessage For="@(() => item.StartLocation)" />
+                                        </td>
+                                        <td>
+                                            <InputText @bind-Value="item.EndLocation" class="form-control form-control-sm"
+                                                       placeholder="Ending location" />
+                                            <ValidationMessage For="@(() => item.EndLocation)" />
+                                        </td>
+                                        <td>
+                                            <InputText @bind-Value="item.Description" class="form-control form-control-sm"
+                                                       placeholder="Purpose of trip" />
+                                            <ValidationMessage For="@(() => item.Description)" />
+                                        </td>
+                                        <td>
+                                            <InputNumber @bind-Value="item.TotalMiles" class="form-control form-control-sm"
+                                                         placeholder="0.0" />
+                                            <ValidationMessage For="@(() => item.TotalMiles)" />
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-sm" @onclick="() => RemoveLineItem(item)">
+                                                <i class="oi oi-x"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-secondary">
+                                    <td colspan="4" class="text-right font-weight-bold">Total mileage:</td>
+                                    <td class="font-weight-bold">@form.TotalMileage</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-right">Mileage reimbursement rate:</td>
+                                    <td>$@form.MileageRate.ToString("F2")</td>
+                                    <td></td>
+                                </tr>
+                                <tr class="table-primary">
+                                    <td colspan="4" class="text-right font-weight-bold">Total mileage reimbursement:</td>
+                                    <td class="font-weight-bold h5">$@form.TotalReimbursement.ToString("F2")</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-muted">
+                            <i class="oi oi-info" style="font-size: 2rem;"></i>
+                            <p class="mt-2">No mileage entries yet. Click "Add Entry" below to start adding trips.</p>
+                        </div>
+                    }
+
+                    <button type="button" class="btn btn-secondary" @onclick="AddLineItem">
+                        <i class="oi oi-plus"></i> Add Entry
+                    </button>
+                </div>
+
+                <!-- Previous rejection information -->
+                @if (form.RejectionReason != null)
+                {
+                    <div class="alert alert-warning mb-4">
+                        <h5 class="alert-heading">
+                            <i class="oi oi-warning"></i> Previous Rejection
+                        </h5>
+                        <p class="mb-1"><strong>Rejected by:</strong> @form.RejectedByName</p>
+                        <p class="mb-1"><strong>Date:</strong> @form.RejectionDate?.ToShortDateString()</p>
+                        <p class="mb-1"><strong>Phase:</strong> @form.RejectionPhase</p>
+                        <p class="mb-0"><strong>Reason:</strong> @form.RejectionReason</p>
+                        <hr>
+                        <p class="mb-0">Please make necessary changes before resubmitting.</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Form Footer with Actions -->
+            <div class="card-footer bg-light">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="text-muted">
+                            <small>
+                                @if (FormId.HasValue)
+                                {
+                                    <text>Editing Form #@FormId</text>
+                                }
+                                else
+                                {
+                                    <text>Creating New Form</text>
+                                }
+                                • Status: @form.Status?.Name
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <button type="button" class="btn btn-secondary mr-2" @onclick="Cancel">
+                            <i class="oi oi-x"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="oi oi-check"></i> Save Form
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+
+    <!-- Validation Summary -->
+    @if (validationErrors.Any())
     {
-        <p>No mileage entries yet. Click "Add Entry" to add a new line item.</p>
+        <div class="alert alert-danger mt-3">
+            <h5>Please correct the following errors:</h5>
+            <ul>
+                @foreach (var error in validationErrors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </div>
     }
-
-    <button type="button" class="btn btn-secondary" @onclick="AddLineItem">
-        <i class="oi oi-plus"></i> Add Entry
-    </button>
-
-    <div class="form-group mt-4">
-        <button type="submit" class="btn btn-primary">Save Form</button>
-        <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-    </div>
-</EditForm>
-
-@if (form.RejectionReason != null)
-{
-    <div class="alert alert-warning mt-4">
-        <h5>This form was previously rejected</h5>
-        <p><strong>Rejected by:</strong> @form.RejectedByName</p>
-        <p><strong>Rejection reason:</strong> @form.RejectionReason</p>
-        <p>Please make necessary changes before resubmitting.</p>
-    </div>
-}
+</div>
 
 @code {
     [Parameter]
@@ -202,6 +332,7 @@
     private string userId;
     private string userEmail;
     private string userDisplayName;
+    private List<string> validationErrors = new List<string>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -232,7 +363,7 @@
                 // Initialize a new form with default values
                 form = new MileageForm
                     {
-                        UserId = userId,  // Set these values in the form itself
+                        UserId = userId,
                         UserEmail = userEmail,
                         UserDisplayName = userDisplayName,
                         DateSubmitted = DateTime.Today,
@@ -241,6 +372,36 @@
                     };
             }
         }
+    }
+
+    private int CountCheckedLocations()
+    {
+        int count = 0;
+        if (form.LocationCorporate) count++;
+        if (form.LocationLenoirCity) count++;
+        if (form.LocationClarksville) count++;
+        if (form.LocationMaryville) count++;
+        if (form.LocationCookeville) count++;
+        if (form.LocationMtJuliet) count++;
+        if (form.LocationDickson) count++;
+        if (form.LocationWeisgarber) count++;
+        return count;
+    }
+
+    private int CountCheckedSpecialties()
+    {
+        int count = 0;
+        if (form.SpecialtyCorporate) count++;
+        if (form.SpecialtyInfusion) count++;
+        if (form.SpecialtyNursePractitioners) count++;
+        if (form.SpecialtyPhysicians) count++;
+        if (form.SpecialtySpecialtyMeds) count++;
+        if (form.SpecialtyAllergy) count++;
+        if (form.SpecialtyMarketing) count++;
+        if (form.SpecialtyPharmacy) count++;
+        if (form.SpecialtyScheduling) count++;
+        if (form.SpecialtyVaccine) count++;
+        return count;
     }
 
     private void AddLineItem()
@@ -264,6 +425,16 @@
 
     private async Task HandleSubmit()
     {
+        // Clear previous validation errors
+        validationErrors.Clear();
+
+        // Perform custom validation
+        if (form.LineItems == null || !form.LineItems.Any())
+        {
+            validationErrors.Add("At least one mileage entry is required.");
+            return;
+        }
+
         // Ensure user info is set
         form.UserId = userId;
         form.UserEmail = userEmail;

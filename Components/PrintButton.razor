@@ -1,0 +1,94 @@
+﻿@namespace FormsBoard.Components
+
+@using Radzen
+@inject IJSRuntime JSRuntime
+
+@if (IsLoading)
+{
+    <RadzenButton Disabled="true" ButtonStyle="@ButtonStyle" Size="@Size" Class="@Class">
+        <RadzenIcon Icon="hourglass_empty" />
+        @LoadingText
+    </RadzenButton>
+}
+else
+{
+    <RadzenButton Click="@HandlePrint"
+                  ButtonStyle="@ButtonStyle"
+                  Size="@Size"
+                  Icon="@Icon"
+                  Text="@Text"
+                  Class="@Class"
+                  Disabled="@Disabled" />
+}
+
+@code {
+    // Component parameters that allow customization
+    [Parameter] public string Text { get; set; } = "Print";
+    [Parameter] public string Icon { get; set; } = "print";
+    [Parameter] public string LoadingText { get; set; } = "Preparing...";
+    [Parameter] public ButtonStyle ButtonStyle { get; set; } = ButtonStyle.Primary;
+    [Parameter] public ButtonSize Size { get; set; } = ButtonSize.Medium;
+    [Parameter] public string Class { get; set; } = "";
+    [Parameter] public bool Disabled { get; set; } = false;
+
+    // The element to print - if null, prints the whole page
+    [Parameter] public ElementReference? PrintElement { get; set; }
+
+    // Callback for when printing starts/completes
+    [Parameter] public EventCallback<bool> OnPrintStarted { get; set; }
+    [Parameter] public EventCallback<bool> OnPrintCompleted { get; set; }
+
+    // Internal state
+    private bool IsLoading = false;
+
+    private async Task HandlePrint()
+    {
+        try
+        {
+            IsLoading = true;
+            StateHasChanged(); // Update UI to show loading state
+
+            // Notify parent component that printing is starting
+            if (OnPrintStarted.HasDelegate)
+            {
+                await OnPrintStarted.InvokeAsync(true);
+            }
+
+            // Small delay to ensure UI updates are rendered
+            await Task.Delay(100);
+
+            if (PrintElement.HasValue)
+            {
+                // Print specific element
+                await PrintSpecificElement();
+            }
+            else
+            {
+                // Print entire page
+                await JSRuntime.InvokeVoidAsync("window.print");
+            }
+
+            // Notify parent component that printing is complete
+            if (OnPrintCompleted.HasDelegate)
+            {
+                await OnPrintCompleted.InvokeAsync(true);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log error or handle as appropriate
+            Console.WriteLine($"Print error: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task PrintSpecificElement()
+    {
+        // This requires a JavaScript function that we'll create
+        await JSRuntime.InvokeVoidAsync("printHelper.printElement", PrintElement.Value);
+    }
+}

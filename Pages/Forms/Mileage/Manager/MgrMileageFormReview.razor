@@ -12,195 +12,344 @@
 
 @if (pendingForms == null)
 {
-    <p><em>Loading...</em></p>
+	<p><em>Loading...</em></p>
 }
 else if (!pendingForms.Any())
 {
-    <p>There are no forms pending your approval.</p>
+	<p>There are no forms pending your approval.</p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Employee</th>
-                <th>Total Miles</th>
-                <th>Reimbursement Amount</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var form in pendingForms)
-            {
-                <tr>
-                    <td>@form.DateSubmitted.ToShortDateString()</td>
-                    <td>@form.UserDisplayName</td>
-                    <td>@form.TotalMileage</td>
-                    <td>$@form.TotalReimbursement.ToString("F2")</td>
-                    <td>
-                        <a href="@($"forms/mileage/view/{form.Id}")" class="btn btn-sm btn-info">
-                            <i class="oi oi-eye"></i> View
-                        </a>
-                        <button class="btn btn-sm btn-success" @onclick="() => ApproveForm(form)">
-                            <i class="oi oi-check"></i> Approve
-                        </button>
-                        <button class="btn btn-sm btn-warning" @onclick="() => ShowRejectDialog(form)">
-                            <i class="oi oi-x"></i> Reject
-                        </button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => ShowDiscardDialog(form)">
-                            <i class="oi oi-trash"></i> Discard
-                        </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+	@foreach (var form in pendingForms)
+	{
+		<div class="card mb-3">
+			<div class="card-header d-flex justify-content-between align-items-center">
+				<div>
+					<h5 class="mb-0">
+						Form #@form.Id - @form.UserDisplayName
+						<small class="text-muted ms-3">@form.DateSubmitted.ToShortDateString()</small>
+					</h5>
+				</div>
+				<div class="btn-group" role="group">
+					<button class="btn btn-sm btn-primary" @onclick="() => ToggleFormExpansion(form.Id)">
+						<i class="oi @(expandedFormId == form.Id ? "oi-chevron-top" : "oi-chevron-bottom")"></i>
+						@(expandedFormId == form.Id ? "Hide Details" : "Show Details")
+					</button>
+					<a href="@($"/forms/mileage/view/{form.Id}")" target="_blank" class="btn btn-sm btn-info">
+						<i class="oi oi-document"></i> View Form
+					</a>
+				</div>
+			</div>
+
+			<div class="card-body">
+				<div class="row">
+					<div class="col-md-3">
+						<strong>Pay To:</strong> @form.UserDisplayName
+					</div>
+					<div class="col-md-3">
+						<strong>Date:</strong> @form.DateSubmitted.ToShortDateString()
+					</div>
+					<div class="col-md-3">
+						<strong>Total Miles:</strong> @form.TotalMileage
+					</div>
+					<div class="col-md-3">
+						<strong>Amount:</strong> $@form.TotalReimbursement.ToString("F2")
+					</div>
+				</div>
+
+				@if (expandedFormId == form.Id)
+				{
+					<div class="mt-4 p-3 bg-light rounded">
+						<!-- Locations and Specialties -->
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<h6>Locations:</h6>
+								<ul class="list-inline">
+									@if (form.LocationCorporate)
+									{
+										<li class="list-inline-item badge bg-secondary">Corporate</li>
+									}
+									@if (form.LocationLenoirCity)
+									{
+										<li class="list-inline-item badge bg-secondary">Lenoir City</li>
+									}
+									@if (form.LocationClarksville)
+									{
+										<li class="list-inline-item badge bg-secondary">Clarksville</li>
+									}
+									@if (form.LocationMaryville)
+									{
+										<li class="list-inline-item badge bg-secondary">Maryville</li>
+									}
+									@if (form.LocationCookeville)
+									{
+										<li class="list-inline-item badge bg-secondary">Cookeville</li>
+									}
+									@if (form.LocationMtJuliet)
+									{
+										<li class="list-inline-item badge bg-secondary">Mt. Juliet</li>
+									}
+									@if (form.LocationDickson)
+									{
+										<li class="list-inline-item badge bg-secondary">Dickson</li>
+									}
+									@if (form.LocationWeisgarber)
+									{
+										<li class="list-inline-item badge bg-secondary">Weisgarber</li>
+									}
+								</ul>
+							</div>
+							<div class="col-md-6">
+								<h6>Specialties:</h6>
+								<ul class="list-inline">
+									@if (form.SpecialtyCorporate)
+									{
+										<li class="list-inline-item badge bg-info">Corporate</li>
+									}
+									@if (form.SpecialtyInfusion)
+									{
+										<li class="list-inline-item badge bg-info">Infusion</li>
+									}
+									@if (form.SpecialtyNursePractitioners)
+									{
+										<li class="list-inline-item badge bg-info">Nurse Practitioners</li>
+									}
+									@if (form.SpecialtyPhysicians)
+									{
+										<li class="list-inline-item badge bg-info">Physicians</li>
+									}
+									@if (form.SpecialtySpecialtyMeds)
+									{
+										<li class="list-inline-item badge bg-info">Specialty Meds</li>
+									}
+									@if (form.SpecialtyAllergy)
+									{
+										<li class="list-inline-item badge bg-info">Allergy</li>
+									}
+									@if (form.SpecialtyMarketing)
+									{
+										<li class="list-inline-item badge bg-info">Marketing</li>
+									}
+									@if (form.SpecialtyPharmacy)
+									{
+										<li class="list-inline-item badge bg-info">Pharmacy</li>
+									}
+									@if (form.SpecialtyScheduling)
+									{
+										<li class="list-inline-item badge bg-info">Scheduling</li>
+									}
+									@if (form.SpecialtyVaccine)
+									{
+										<li class="list-inline-item badge bg-info">Vaccine</li>
+									}
+								</ul>
+							</div>
+						</div>
+
+						<!-- Line Items -->
+						<h6>Mileage Details:</h6>
+						<table class="table table-sm table-striped">
+							<thead>
+								<tr>
+									<th>Date</th>
+									<th>To</th>
+									<th>From</th>
+									<th>Description</th>
+									<th>Miles</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach (var item in form.LineItems)
+								{
+									<tr>
+										<td>@item.TravelDate.ToShortDateString()</td>
+										<td>@item.StartLocation</td>
+										<td>@item.EndLocation</td>
+										<td>@item.Description</td>
+										<td>@item.TotalMiles</td>
+									</tr>
+								}
+							</tbody>
+							<tfoot>
+								<tr>
+									<td colspan="4" class="text-end"><strong>Total:</strong></td>
+									<td><strong>@form.TotalMileage</strong></td>
+								</tr>
+							</tfoot>
+						</table>
+
+						<!-- Approval Actions -->
+						<div class="mt-4 p-3 bg-white border rounded">
+							<h6 class="text-center mb-3">Approval Decision for Form #@form.Id</h6>
+							<div class="d-flex justify-content-center gap-3">
+								<button class="btn btn-success" @onclick="() => ApproveForm(form)">
+									<i class="oi oi-check"></i> Approve Form
+								</button>
+								<button class="btn btn-warning" @onclick="() => ShowRejectDialog(form)">
+									<i class="oi oi-x"></i> Reject Form
+								</button>
+								<button class="btn btn-danger" @onclick="() => ShowDiscardDialog(form)">
+									<i class="oi oi-trash"></i> Discard Form
+								</button>
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+	}
 }
 
 @if (showRejectDialog)
 {
-    <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.4);" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Reject Form</h5>
-                    <button type="button" class="close" @onclick="CancelReject">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="rejectionReason">Please provide a reason for rejection:</label>
-                        <textarea id="rejectionReason" class="form-control" rows="3" @bind="rejectionReason"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="CancelReject">Cancel</button>
-                    <button type="button" class="btn btn-warning" @onclick="RejectForm" disabled="@string.IsNullOrEmpty(rejectionReason)">
-                        Reject Form
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.4);" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Reject Form</h5>
+					<button type="button" class="close" @onclick="CancelReject">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label for="rejectionReason">Please provide a reason for rejection:</label>
+						<textarea id="rejectionReason" class="form-control" rows="3" @bind="rejectionReason"></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" @onclick="CancelReject">Cancel</button>
+					<button type="button" class="btn btn-warning" @onclick="RejectForm" disabled="@string.IsNullOrEmpty(rejectionReason)">
+						Reject Form
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
 }
 
 @if (showDiscardDialog)
 {
-    <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.4);" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Discard Form</h5>
-                    <button type="button" class="close" @onclick="CancelDiscard">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to discard this form? This action cannot be undone.</p>
-                    <div class="form-group">
-                        <label for="discardReason">Please provide a reason:</label>
-                        <textarea id="discardReason" class="form-control" rows="3" @bind="discardReason"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="CancelDiscard">Cancel</button>
-                    <button type="button" class="btn btn-danger" @onclick="DiscardForm" disabled="@string.IsNullOrEmpty(discardReason)">
-                        Discard Form
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.4);" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Discard Form</h5>
+					<button type="button" class="close" @onclick="CancelDiscard">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure you want to discard this form? This action cannot be undone.</p>
+					<div class="form-group">
+						<label for="discardReason">Please provide a reason:</label>
+						<textarea id="discardReason" class="form-control" rows="3" @bind="discardReason"></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" @onclick="CancelDiscard">Cancel</button>
+					<button type="button" class="btn btn-danger" @onclick="DiscardForm" disabled="@string.IsNullOrEmpty(discardReason)">
+						Discard Form
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
 }
 
 @code {
-    private IEnumerable<MileageForm> pendingForms;
-    private string userId;
-    private string userEmail;
-    private string userDisplayName;
-    private bool showRejectDialog = false;
-    private MileageForm selectedForm;
-    private string rejectionReason;
-    private bool showDiscardDialog = false;
-    private string discardReason;
+	private IEnumerable<MileageForm> pendingForms;
+	private string userId;
+	private string userEmail;
+	private string userDisplayName;
+	private int? expandedFormId = null;
 
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
+	private bool showRejectDialog = false;
+	private bool showDiscardDialog = false;
+	private MileageForm selectedForm;
+	private string rejectionReason;
+	private string discardReason;
 
-        var d = (user.Identity.IsAuthenticated);
-        var f = user.IsInRole("ApprovalManagers");
+	protected override async Task OnInitializedAsync()
+	{
+		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
 
-        if (user.Identity.IsAuthenticated && user.IsInRole("ApprovalManagers"))
-        {
-            userId = user.FindFirst(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value;
-            userEmail = user.FindFirst(c => c.Type == "preferred_username")?.Value;
-            userDisplayName = user.FindFirst(c => c.Type == "name")?.Value;
+		if (user.Identity.IsAuthenticated && user.IsInRole("ApprovalManagers"))
+		{
+			userId = user.FindFirst(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value;
+			userEmail = user.FindFirst(c => c.Type == "preferred_username")?.Value;
+			userDisplayName = user.FindFirst(c => c.Type == "name")?.Value;
 
-        pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted); // Status 2 = Submitted
-        }
-    }
+			pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted); // Status 2 = Submitted
+		}
+	}
 
-    private async Task ApproveForm(MileageForm form)
-    {
-        await MileageService.ManagerApproveAsync(form.Id, userId, userEmail, userDisplayName);
-        pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted);
-    }
+	private async Task ApproveForm(MileageForm form)
+	{
+		if (await MileageService.ManagerApproveAsync(form.Id, userId, userEmail, userDisplayName))
+		{
+			pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted);
+			expandedFormId = null; // Collapse after action
+		}
+	}
 
-    private void ShowRejectDialog(MileageForm form)
-    {
-        selectedForm = form;
-        rejectionReason = string.Empty;
-        showRejectDialog = true;
-    }
+	private void ToggleFormExpansion(int formId)
+	{
+		expandedFormId = expandedFormId == formId ? null : formId;
+	}
 
-    private void CancelReject()
-    {
-        showRejectDialog = false;
-        selectedForm = null;
-        rejectionReason = string.Empty;
-    }
+	private void ShowRejectDialog(MileageForm form)
+	{
+		selectedForm = form;
+		rejectionReason = string.Empty;
+		showRejectDialog = true;
+	}
 
-    private async Task RejectForm()
-    {
-        if (selectedForm != null && !string.IsNullOrEmpty(rejectionReason))
-        {
-            await MileageService.ManagerRejectAsync(selectedForm.Id, userId, userDisplayName, rejectionReason);
-            showRejectDialog = false;
-            selectedForm = null;
-            rejectionReason = string.Empty;
-            pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted);
-        }
-    }
+	private void CancelReject()
+	{
+		showRejectDialog = false;
+		selectedForm = null;
+		rejectionReason = string.Empty;
+	}
 
-    private void ShowDiscardDialog(MileageForm form)
-    {
-        selectedForm = form;
-        discardReason = string.Empty;
-        showDiscardDialog = true;
-    }
+	private async Task RejectForm()
+	{
+		if (selectedForm != null && !string.IsNullOrEmpty(rejectionReason))
+		{
+			await MileageService.ManagerRejectAsync(selectedForm.Id, userId, userDisplayName, rejectionReason);
+			showRejectDialog = false;
+			selectedForm = null;
+			rejectionReason = string.Empty;
+			pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted);
+		}
+	}
 
-    private void CancelDiscard()
-    {
-        showDiscardDialog = false;
-        selectedForm = null;
-        discardReason = string.Empty;
-    }
+	private void ShowDiscardDialog(MileageForm form)
+	{
+		selectedForm = form;
+		discardReason = string.Empty;
+		showDiscardDialog = true;
+	}
 
-    private async Task DiscardForm()
-    {
-        if (selectedForm != null && !string.IsNullOrEmpty(discardReason))
-        {
-            await MileageService.DiscardFormAsync(selectedForm.Id, userId, userDisplayName, discardReason);
-            showDiscardDialog = false;
-            selectedForm = null;
-            discardReason = string.Empty;
+	private void CancelDiscard()
+	{
+		showDiscardDialog = false;
+		selectedForm = null;
+		discardReason = string.Empty;
+	}
 
-            // Refresh the list of pending forms
-            pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted);
-        }
-    }
+	private async Task DiscardForm()
+	{
+		if (selectedForm != null && !string.IsNullOrEmpty(discardReason))
+		{
+			await MileageService.DiscardFormAsync(selectedForm.Id, userId, userDisplayName, discardReason);
+			showDiscardDialog = false;
+			selectedForm = null;
+			discardReason = string.Empty;
+
+			// Refresh the list of pending forms
+			pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted);
+		}
+	}
 }

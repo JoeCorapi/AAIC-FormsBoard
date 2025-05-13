@@ -1,219 +1,380 @@
 ﻿@page "/forms/mileage/view/{FormId:int}"
-@using Domain.Entities
-@using Domain.FormModels
-@using Application.Interfaces
-@using Application.Services
+@using FormsBoard.Components
+@using FormsBoard.Domain.Entities
+@using FormsBoard.Domain.FormModels
+@using FormsBoard.Application.Interfaces
+@using FormsBoard.Application.Services
 @inject IMileageService MileageService
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 
-<h3>Mileage Form Details</h3>
-
-@if (form == null)
-{
-	<p><em>Loading...</em></p>
-}
-else
-{
-	<div class="card mb-4">
-		<div class="card-header d-flex justify-content-between align-items-center">
-			<div>
-				<h4>Form #@form.Id</h4>
-				<div>
-					<span class="@GetStatusCssClass(form.Status.Id)">@form.Status.Name</span>
-					<span class="ml-3">Submitted: @form.DateSubmitted.ToShortDateString()</span>
-				</div>
+<div class="container mt-4">
+	@if (form == null)
+	{
+		<div class="text-center">
+			<p><em>Loading...</em></p>
+		</div>
+	}
+	else
+	{
+		<div @ref="formContent" class="card shadow-lg border-0">
+			<!-- Form Header with Organization Name -->
+			<div class="card-header bg-primary text-white text-center py-4">
+				<h2 class="mb-0">Allergy, Asthma and Immunology Center</h2>
+				<h3 class="mt-2">Auto Mileage Reimbursement Request</h3>
 			</div>
-			<div>
-				@if (form.FormStatusId == 1) // Draft
+
+			<div class="card-body">
+				<!-- Top section with Pay To and Date -->
+				<div class="row mb-4 pb-3 border-bottom">
+					<div class="col-md-8">
+						<div class="form-group">
+							<label class="font-weight-bold">Pay to:</label>
+							<div class="form-control-plaintext h5">@form.UserDisplayName</div>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group">
+							<label class="font-weight-bold">Date:</label>
+							<div class="form-control-plaintext h5">@form.DateSubmitted.ToShortDateString()</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Location and Specialty Sections -->
+				<div class="row mb-4">
+					<!-- Location of Expense -->
+					<div class="col-md-6">
+						<div class="border rounded p-3">
+							<h5 class="border-bottom pb-2 mb-3">Location of Expense (Check all that apply)</h5>
+							<div class="row">
+								<div class="col-6">
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.LocationCorporate" disabled />
+										<label class="form-check-label">Corporate</label>
+									</div>
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.LocationLenoirCity" disabled />
+										<label class="form-check-label">Lenoir City</label>
+									</div>
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.LocationClarksville" disabled />
+										<label class="form-check-label">Clarksville</label>
+									</div>
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.LocationMaryville" disabled />
+										<label class="form-check-label">Maryville</label>
+									</div>
+								</div>
+								<div class="col-6">
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.LocationCookeville" disabled />
+										<label class="form-check-label">Cookeville</label>
+									</div>
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.LocationMtJuliet" disabled />
+										<label class="form-check-label">Mt. Juliet</label>
+									</div>
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.LocationDickson" disabled />
+										<label class="form-check-label">Dickson</label>
+									</div>
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.LocationWeisgarber" disabled />
+										<label class="form-check-label">Weisgarber</label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Specialty/Service/Category -->
+					<div class="col-md-6">
+						<div class="border rounded p-3">
+							<h5 class="border-bottom pb-2 mb-3">Specialty/Service/Category (Check all that apply)</h5>
+							<div class="row">
+								<div class="col-6">
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.SpecialtyCorporate" disabled />
+										<label class="form-check-label">Corporate</label>
+									</div>
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.SpecialtyInfusion" disabled />
+										<label class="form-check-label">Infusion</label>
+									</div>
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.SpecialtyNursePractitioners" disabled />
+										<label class="form-check-label">Nurse Practitioners</label>
+									</div>
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.SpecialtyPhysicians" disabled />
+										<label class="form-check-label">Physicians</label>
+									</div>
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.SpecialtySpecialtyMeds" disabled />
+										<label class="form-check-label">Specialty Meds</label>
+									</div>
+								</div>
+								<div class="col-6">
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.SpecialtyAllergy" disabled />
+										<label class="form-check-label">Allergy</label>
+									</div>
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.SpecialtyMarketing" disabled />
+										<label class="form-check-label">Marketing</label>
+									</div>
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.SpecialtyPharmacy" disabled />
+										<label class="form-check-label">Pharmacy</label>
+									</div>
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.SpecialtyScheduling" disabled />
+										<label class="form-check-label">Scheduling</label>
+									</div>
+									<div class="form-check mb-2">
+										<input type="checkbox" class="form-check-input" checked="@form.SpecialtyVaccine" disabled />
+										<label class="form-check-label">Vaccine</label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Note about multiple specialties -->
+				@if (CountCheckedSpecialties() > 1 || CountCheckedLocations() > 1)
 				{
-					<a href="@($"forms/mileage/edit/{form.Id}")" class="btn btn-primary mr-2">
-						<i class="oi oi-pencil"></i> Edit
-					</a>
-					<button class="btn btn-success" @onclick="SubmitForm">
-						<i class="oi oi-check"></i> Submit
-					</button>
+					<div class="alert alert-info mb-4">
+						<i class="oi oi-info"></i> Two or more specialties/locations are checked. Please see allocation details below.
+					</div>
 				}
-				<a href="/forms/mileage/my" class="btn btn-secondary ml-2">
-					<i class="oi oi-arrow-left"></i> Back
-				</a>
+
+				<!-- Mileage details table -->
+				<div class="mb-4">
+					<h5 class="border-bottom pb-2 mb-3">Mileage Details</h5>
+					<table class="table table-bordered table-striped">
+						<thead class="thead-light">
+							<tr>
+								<th>Date</th>
+								<th>Start (from)</th>
+								<th>End (to)</th>
+								<th>Description -- Purpose</th>
+								<th>Total Miles</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (form.LineItems != null && form.LineItems.Any())
+							{
+								@foreach (var item in form.LineItems)
+								{
+									<tr>
+										<td>@item.TravelDate.ToShortDateString()</td>
+										<td>@item.StartLocation</td>
+										<td>@item.EndLocation</td>
+										<td>@item.Description</td>
+										<td class="text-right">@item.TotalMiles</td>
+									</tr>
+								}
+							}
+							else
+							{
+								<tr>
+									<td colspan="5" class="text-center text-muted">No mileage entries recorded</td>
+								</tr>
+							}
+						</tbody>
+						<tfoot>
+							<tr class="table-secondary">
+								<td colspan="4" class="text-right font-weight-bold">Total mileage:</td>
+								<td class="text-right font-weight-bold">@form.TotalMileage</td>
+							</tr>
+							<tr>
+								<td colspan="4" class="text-right">Mileage reimbursement rate:</td>
+								<td class="text-right">$@form.MileageRate.ToString("F2")</td>
+							</tr>
+							<tr class="table-primary">
+								<td colspan="4" class="text-right font-weight-bold">Total mileage reimbursement:</td>
+								<td class="text-right font-weight-bold h5">$@form.TotalReimbursement.ToString("F2")</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+
+				<!-- Manager Approval Section -->
+				<div class="mt-5 pt-4 border-top">
+					<h5 class="mb-3">Approval</h5>
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="font-weight-bold">Manager Approval:</label>
+								@if (form.FormStatusId >= FormState.ManagerApproved)
+								{
+									<div>
+										<span class="h5">@form.ManagerDisplayName</span>
+										<small class="text-muted ml-2">(@form.ApprovalDate?.ToShortDateString())</small>
+									</div>
+								}
+								else
+								{
+									<div class="border-bottom" style="height: 35px;"></div>
+								}
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label class="font-weight-bold">Date:</label>
+								@if (form.FormStatusId >= FormState.ManagerApproved)
+								{
+									<div class="h5">@form.ApprovalDate?.ToShortDateString()</div>
+								}
+								else
+								{
+									<div class="border-bottom" style="height: 35px;"></div>
+								}
+							</div>
+						</div>
+					</div>
+
+					<div class="text-center mt-3">
+						<small class="text-muted font-italic">(Required for reimbursement)</small>
+					</div>
+				</div>
+
+				<!-- Additional Status Information -->
+				@if (form.FormStatusId == FormState.Discarded)
+				{
+					<div class="alert alert-danger mt-4">
+						<h5 class="alert-heading">Form Discarded</h5>
+						<p class="mb-1"><strong>Discarded by:</strong> @form.RejectedByName</p>
+						<p class="mb-1"><strong>Date:</strong> @form.RejectionDate?.ToShortDateString()</p>
+						<p class="mb-0"><strong>Reason:</strong> @form.RejectionReason</p>
+					</div>
+				}
+				else if (!string.IsNullOrEmpty(form.RejectionReason))
+				{
+					<div class="alert alert-warning mt-4">
+						<h5 class="alert-heading">Previous Rejection</h5>
+						<p class="mb-1"><strong>Rejected by:</strong> @form.RejectedByName</p>
+						<p class="mb-1"><strong>Date:</strong> @form.RejectionDate?.ToShortDateString()</p>
+						<p class="mb-1"><strong>Phase:</strong> @form.RejectionPhase</p>
+						<p class="mb-0"><strong>Reason:</strong> @form.RejectionReason</p>
+					</div>
+				}
+			</div>
+
+			<!-- Status Footer -->
+			<div class="card-footer text-center bg-light">
+				<div class="d-flex justify-content-between align-items-center">
+					<span>Form #@form.Id</span>
+					<span class="@GetStatusCssClass(form.Status.Name) px-3 py-2">
+						Status: @form.Status.Name
+					</span>
+					<span>Submitted: @form.DateSubmitted.ToShortDateString()</span>
+				</div>
 			</div>
 		</div>
 
-		<div class="card-body">
-			<div class="row">
-				<div class="col-md-6">
-					<h5>Locations</h5>
-					<ul class="list-group mb-3">
-						@if (form.LocationCorporate)
-						{
-							<li class="list-group-item">Corporate</li>
-						}
-						@if (form.LocationLenoirCity)
-						{
-							<li class="list-group-item">Lenoir City</li>
-						}
-						@if (form.LocationClarksville)
-						{
-							<li class="list-group-item">Clarksville</li>
-						}
-						@if (form.LocationMaryville)
-						{
-							<li class="list-group-item">Maryville</li>
-						}
-						@if (form.LocationCookeville)
-						{
-							<li class="list-group-item">Cookeville</li>
-						}
-						@if (form.LocationMtJuliet)
-						{
-							<li class="list-group-item">Mt. Juliet</li>
-						}
-						@if (form.LocationDickson)
-						{
-							<li class="list-group-item">Dickson</li>
-						}
-						@if (form.LocationWeisgarber)
-						{
-							<li class="list-group-item">Weisgarber</li>
-						}
-					</ul>
+		<!-- Action buttons for managers/accounting if viewing their pending forms -->
+		@if ((isManager && form.FormStatusId == FormState.Submitted) ||
+				(isAccountingUser && form.FormStatusId == FormState.ManagerApproved))
+		{
+			<div class="card mt-4 shadow-sm">
+				<div class="card-header bg-warning text-dark">
+					<h5 class="mb-0">
+						<i class="oi oi-task"></i> Approval Actions
+					</h5>
 				</div>
-
-				<div class="col-md-6">
-					<h5>Specialties</h5>
-					<ul class="list-group mb-3">
-						@if (form.SpecialtyCorporate)
-						{
-							<li class="list-group-item">Corporate</li>
-						}
-						@if (form.SpecialtyInfusion)
-						{
-							<li class="list-group-item">Infusion</li>
-						}
-						@if (form.SpecialtyNursePractitioners)
-						{
-							<li class="list-group-item">Nurse Practitioners</li>
-						}
-						@if (form.SpecialtyPhysicians)
-						{
-							<li class="list-group-item">Physicians</li>
-						}
-						@if (form.SpecialtySpecialtyMeds)
-						{
-							<li class="list-group-item">Specialty Meds</li>
-						}
-						@if (form.SpecialtyAllergy)
-						{
-							<li class="list-group-item">Allergy</li>
-						}
-						@if (form.SpecialtyMarketing)
-						{
-							<li class="list-group-item">Marketing</li>
-						}
-						@if (form.SpecialtyPharmacy)
-						{
-							<li class="list-group-item">Pharmacy</li>
-						}
-						@if (form.SpecialtyScheduling)
-						{
-							<li class="list-group-item">Scheduling</li>
-						}
-						@if (form.SpecialtyVaccine)
-						{
-							<li class="list-group-item">Vaccine</li>
-						}
-					</ul>
+				<div class="card-body">
+					<p class="text-center mb-4">Please review the form above carefully before selecting your action:</p>
+					<div class="text-center">
+						<button class="btn btn-success btn-lg mx-2" @onclick="ApproveForm">
+							<i class="oi oi-check"></i> Approve This Form
+						</button>
+						<button class="btn btn-warning btn-lg mx-2" @onclick="ShowRejectDialog">
+							<i class="oi oi-x"></i> Reject This Form
+						</button>
+						<button class="btn btn-danger btn-lg mx-2" @onclick="ShowDiscardDialog">
+							<i class="oi oi-trash"></i> Discard This Form
+						</button>
+					</div>
 				</div>
 			</div>
+		}
 
-			<h5 class="mt-3">Mileage Details</h5>
-
-			@if (form.LineItems != null && form.LineItems.Any())
+		<!-- Navigation buttons -->
+		<div class="mt-4 text-center">
+			<button class="btn btn-secondary" @onclick="@(() => NavigationManager.NavigateTo("/forms/mileage/my"))">
+				<i class="oi oi-arrow-left"></i> Back to My Forms
+			</button>
+			@if (showPrintButton)
 			{
-				<table class="table table-striped">
-					<thead>
-						<tr>
-							<th>Date</th>
-							<th>Start Location</th>
-							<th>End Location</th>
-							<th>Description</th>
-							<th>Miles</th>
-						</tr>
-					</thead>
-					<tbody>
-						@foreach (var item in form.LineItems)
-						{
-							<tr>
-								<td>@item.TravelDate.ToShortDateString()</td>
-								<td>@item.StartLocation</td>
-								<td>@item.EndLocation</td>
-								<td>@item.Description</td>
-								<td>@item.TotalMiles</td>
-							</tr>
-						}
-					</tbody>
-					<tfoot>
-						<tr>
-							<td colspan="4" class="text-right"><strong>Total Miles:</strong></td>
-							<td><strong>@form.TotalMileage</strong></td>
-						</tr>
-						<tr>
-							<td colspan="4" class="text-right"><strong>Reimbursement Rate:</strong></td>
-							<td><strong>$@form.MileageRate.ToString("F2")</strong></td>
-						</tr>
-						<tr>
-							<td colspan="4" class="text-right"><strong>Total Reimbursement:</strong></td>
-							<td><strong>$@form.TotalReimbursement.ToString("F2")</strong></td>
-						</tr>
-					</tfoot>
-				</table>
+				<PrintButton Text="Print Form"
+							 Icon="print"
+							 ButtonStyle="ButtonStyle.Info"
+							 Class="ms-2"
+							 PrintElement="@formContent" />
 			}
-			else
-			{
-				<p>No mileage entries found.</p>
-			}
+		</div>
+	}
+</div>
 
-			@* Display different approval information based on status name *@
-			@if (form.Status.Id == FormState.ManagerApproved || form.Status.Id == FormState.Completed)
-			{
-				<div class="alert alert-info mt-3">
-					<h5>Approval Information</h5>
-					<p><strong>Approved by:</strong> @form.ManagerDisplayName</p>
-					<p><strong>Approval Date:</strong> @form.ApprovalDate?.ToShortDateString()</p>
+<!-- Rejection Modal -->
+@if (showRejectDialog)
+{
+	<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.4);" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Reject Form #@form.Id</h5>
+					<button type="button" class="close" @onclick="CancelReject">
+						<span aria-hidden="true">&times;</span>
+					</button>
 				</div>
-			}
-
-			@if (form.Status.Id == FormState.Completed)
-			{
-				<div class="alert alert-success mt-3">
-					<h5>Accounting Approval</h5>
-					<p><strong>Approved by:</strong> @form.AccountantDisplayName</p>
-					<p><strong>Approval Date:</strong> @form.AccountingApprovalDate?.ToShortDateString()</p>
+				<div class="modal-body">
+					<p>This will send the form back to <strong>@form.UserDisplayName</strong> for revision.</p>
+					<div class="form-group">
+						<label for="rejectionReason">Please provide a reason for rejection:</label>
+						<textarea id="rejectionReason" class="form-control" rows="3" @bind="rejectionReason"></textarea>
+					</div>
 				</div>
-			}
-
-
-			@if (form.Status.Id == FormState.Discarded)
-			{
-				<div class="alert alert-danger mt-3">
-					<h5>Form Discarded</h5>
-					<p><strong>Discarded by:</strong> @form.RejectedByName</p>
-					<p><strong>Date:</strong> @form.RejectionDate?.ToShortDateString()</p>
-					<p><strong>Reason:</strong> @form.RejectionReason</p>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" @onclick="CancelReject">Cancel</button>
+					<button type="button" class="btn btn-warning" @onclick="RejectForm" disabled="@string.IsNullOrEmpty(rejectionReason)">
+						Reject Form
+					</button>
 				</div>
-			}
+			</div>
+		</div>
+	</div>
+}
 
-			@if (!string.IsNullOrEmpty(form.RejectionReason) && form.Status.Id != FormState.Discarded)
-			{
-				<div class="alert alert-warning mt-3">
-					<h5>Rejection Information</h5>
-					<p><strong>Rejected by:</strong> @form.RejectedByName</p>
-					<p><strong>Rejection Date:</strong> @form.RejectionDate?.ToShortDateString()</p>
-					<p><strong>Rejection Phase:</strong> @form.RejectionPhase</p>
-					<p><strong>Reason:</strong> @form.RejectionReason</p>
+<!-- Discard Modal -->
+@if (showDiscardDialog)
+{
+	<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.4);" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Discard Form #@form.Id</h5>
+					<button type="button" class="close" @onclick="CancelDiscard">
+						<span aria-hidden="true">&times;</span>
+					</button>
 				</div>
-			}
+				<div class="modal-body">
+					<p class="text-danger"><strong>Warning:</strong> This will permanently mark the form as discarded. This action cannot be undone.</p>
+					<div class="form-group">
+						<label for="discardReason">Please provide a reason for discarding:</label>
+						<textarea id="discardReason" class="form-control" rows="3" @bind="discardReason"></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" @onclick="CancelDiscard">Cancel</button>
+					<button type="button" class="btn btn-danger" @onclick="DiscardForm" disabled="@string.IsNullOrEmpty(discardReason)">
+						Discard Form
+					</button>
+				</div>
+			</div>
 		</div>
 	</div>
 }
@@ -221,9 +382,24 @@ else
 @code {
 	[Parameter]
 	public int FormId { get; set; }
+	ElementReference formContent;
+
 
 	private MileageForm form;
 	private string userId;
+	private string userEmail;
+	private string userDisplayName;
+	private bool isManager;
+	private bool isAccountingUser;
+
+	// Dialog state
+	private bool showRejectDialog = false;
+	private bool showDiscardDialog = false;
+	private string rejectionReason = "";
+	private string discardReason = "";
+
+	// Need to re-render print button/reference after main div renders
+	private bool showPrintButton = false;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -233,31 +409,170 @@ else
 		if (user.Identity.IsAuthenticated)
 		{
 			userId = user.FindFirst(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value;
-			form = await MileageService.GetFormDetailsAsync(FormId);
+			userEmail = user.FindFirst(c => c.Type == "preferred_username")?.Value;
+			userDisplayName = user.FindFirst(c => c.Type == "name")?.Value;
 
-			if (form == null || (form.UserId != userId && !user.IsInRole("Manager") && !user.IsInRole("Accounting")))
-			{
-				NavigationManager.NavigateTo("/forms/mileage/my");
-			}
+			// Check user roles using your group-based authorization
+			isManager = user.IsInRole("ApprovalManagers");
+			isAccountingUser = user.IsInRole("AcctApprovers");
+
+			form = await MileageService.GetFormDetailsAsync(FormId);
 		}
 	}
 
-	private string GetStatusCssClass(int state)
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		return state switch
+		// If the form exists but we haven't shown the print button yet
+		if (form != null && !showPrintButton)
 		{
-			FormState.Draft => "badge badge-secondary",
-			FormState.Submitted => "badge badge-primary",
-			FormState.ManagerApproved => "badge badge-info",
-			FormState.Completed => "badge badge-success",
-			FormState.Discarded => "badge badge-danger",
+			// Wait just one more render cycle
+			showPrintButton = true;
+			StateHasChanged();
+		}
+	}
+
+	private string GetStatusCssClass(string status)
+	{
+		return status switch
+		{
+			"Draft" => "badge badge-secondary",
+			"Submitted" => "badge badge-primary",
+			"Manager Approved" => "badge badge-info",
+			"Accounting Approved" => "badge badge-success",
+			"Paid" => "badge badge-dark",
+			"Discarded" => "badge badge-danger",
 			_ => "badge badge-light"
 		};
 	}
 
-	private async Task SubmitForm()
+	private int CountCheckedLocations()
 	{
-		await MileageService.SubmitFormAsync(form.Id);
-		form = await MileageService.GetFormDetailsAsync(FormId);
+		int count = 0;
+		if (form.LocationCorporate) count++;
+		if (form.LocationLenoirCity) count++;
+		if (form.LocationClarksville) count++;
+		if (form.LocationMaryville) count++;
+		if (form.LocationCookeville) count++;
+		if (form.LocationMtJuliet) count++;
+		if (form.LocationDickson) count++;
+		if (form.LocationWeisgarber) count++;
+		return count;
+	}
+
+	private int CountCheckedSpecialties()
+	{
+		int count = 0;
+		if (form.SpecialtyCorporate) count++;
+		if (form.SpecialtyInfusion) count++;
+		if (form.SpecialtyNursePractitioners) count++;
+		if (form.SpecialtyPhysicians) count++;
+		if (form.SpecialtySpecialtyMeds) count++;
+		if (form.SpecialtyAllergy) count++;
+		if (form.SpecialtyMarketing) count++;
+		if (form.SpecialtyPharmacy) count++;
+		if (form.SpecialtyScheduling) count++;
+		if (form.SpecialtyVaccine) count++;
+		return count;
+	}
+
+	private async Task ApproveForm()
+	{
+		bool success = false;
+
+		if (isManager && form.FormStatusId == FormState.Submitted)
+		{
+			success = await MileageService.ManagerApproveAsync(form.Id, userId, userEmail, userDisplayName);
+		}
+		else if (isAccountingUser && form.FormStatusId == FormState.ManagerApproved)
+		{
+			success = await MileageService.AccountingApproveAsync(form.Id, userId, userEmail, userDisplayName);
+		}
+
+		if (success)
+		{
+			// Refresh the form data to show the updated status
+			form = await MileageService.GetFormDetailsAsync(FormId);
+		}
+	}
+
+	private void ShowRejectDialog()
+	{
+		rejectionReason = "";
+		showRejectDialog = true;
+	}
+
+	private void CancelReject()
+	{
+		showRejectDialog = false;
+		rejectionReason = "";
+	}
+
+	private async Task RejectForm()
+	{
+		if (!string.IsNullOrEmpty(rejectionReason))
+		{
+			bool success = false;
+
+			if (isManager && form.FormStatusId == FormState.Submitted)
+			{
+				success = await MileageService.ManagerRejectAsync(form.Id, userId, userDisplayName, rejectionReason);
+			}
+			else if (isAccountingUser && form.FormStatusId == FormState.ManagerApproved)
+			{
+				success = await MileageService.AccountingRejectAsync(form.Id, userId, userDisplayName, rejectionReason);
+			}
+
+			if (success)
+			{
+				showRejectDialog = false;
+				form = await MileageService.GetFormDetailsAsync(FormId);
+			}
+		}
+	}
+
+	private void ShowDiscardDialog()
+	{
+		discardReason = "";
+		showDiscardDialog = true;
+	}
+
+	private void CancelDiscard()
+	{
+		showDiscardDialog = false;
+		discardReason = "";
+	}
+
+	private async Task DiscardForm()
+	{
+		if (!string.IsNullOrEmpty(discardReason))
+		{
+			bool success = await MileageService.DiscardFormAsync(form.Id, userId, userDisplayName, discardReason);
+
+			if (success)
+			{
+				showDiscardDialog = false;
+				form = await MileageService.GetFormDetailsAsync(FormId);
+			}
+		}
 	}
 }
+
+<!-- Print styles -->
+<style>
+	@@media print {
+		.btn, .modal {
+			display: none !important;
+		}
+
+		.card {
+			border: 1px solid #000 !important;
+			box-shadow: none !important;
+		}
+
+		.card-header {
+			background-color: #fff !important;
+			color: #000 !important;
+			border-bottom: 2px solid #000 !important;
+		}
+	}
+</style>

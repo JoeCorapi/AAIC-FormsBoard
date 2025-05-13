@@ -44,6 +44,7 @@
     <Folder Include="Application\DTOs\" />
     <Folder Include="Migrations\" />
     <Folder Include="Properties\PublishProfiles\" />
+    <Folder Include="wwwroot\Forms\HR\PDF\" />
   </ItemGroup>
 
 </Project>
