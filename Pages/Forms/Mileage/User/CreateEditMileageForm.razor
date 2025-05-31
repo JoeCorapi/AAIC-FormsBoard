@@ -1,6 +1,7 @@
 ﻿@page "/forms/mileage/create"
 @page "/forms/mileage/edit/{FormId:int}"
 @using Domain.Entities
+@using Domain.FormModels
 @using Application.Services
 @using Application.Interfaces
 @inject IMileageService MileageService
@@ -373,14 +374,31 @@
             if (FormId.HasValue)
             {
                 var existingForm = await MileageService.GetFormDetailsAsync(FormId.Value);
-                if (existingForm != null && existingForm.UserId == userId)
+
+                // Enhanced authorization checks
+                if (existingForm == null)
                 {
-                    form = existingForm;
-                }
-                else
-                {
+                    // Form doesn't exist
                     NavigationManager.NavigateTo("/forms/mileage/my");
+                    return;
                 }
+
+                if (existingForm.UserId != userId)
+                {
+                    // User doesn't own this form
+                    NavigationManager.NavigateTo("/forms/mileage/my");
+                    return;
+                }
+
+                if (existingForm.FormStatusId != FormState.Draft)
+                {
+                    // Form is not in editable state - redirect with message
+                    NavigationManager.NavigateTo("/forms/mileage/my?message=cannot-edit-submitted");
+                    return;
+                }
+
+                // All checks passed - user can edit this form
+                form = existingForm;
             }
             else
             {
