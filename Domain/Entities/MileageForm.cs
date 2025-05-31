@@ -70,7 +70,7 @@ namespace FormsBoard.Domain.Entities
         public bool SpecialtyScheduling { get; set; }
         public bool SpecialtyVaccine { get; set; }
 
-        public virtual ICollection<MileageLineItem> LineItems { get; set; }
+        public virtual IList<MileageLineItem> LineItems { get; set; }
 
         // Calculated properties
         [Display(Name = "Total Mileage")]
