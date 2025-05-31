@@ -57,7 +57,7 @@ else
                         <a href="@($"forms/mileage/view/{form.Id}")" class="btn btn-sm btn-info">
                             <i class="oi oi-eye"></i> View
                         </a>
-
+                        <span style="margin-left: 0.1em;"></span>
                         @if (form.FormStatusId == FormState.Draft) // Draft
                         {
                             <a href="@($"forms/mileage/edit/{form.Id}")" class="btn btn-sm btn-primary">

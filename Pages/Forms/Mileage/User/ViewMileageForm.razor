@@ -143,10 +143,10 @@
 				</div>
 
 				<!-- Note about multiple specialties -->
-				@if (CountCheckedSpecialties() > 1 || CountCheckedLocations() > 1)
+				@if (CountCheckedSpecialties() > 1)
 				{
 					<div class="alert alert-info mb-4">
-						<i class="oi oi-info"></i> Two or more specialties/locations are checked. Please see allocation details below.
+						<i class="oi oi-info"></i> Two or more specialties are checked. Please see allocation details below.
 					</div>
 				}
 
@@ -443,20 +443,6 @@
 			"Discarded" => "badge badge-danger",
 			_ => "badge badge-light"
 		};
-	}
-
-	private int CountCheckedLocations()
-	{
-		int count = 0;
-		if (form.LocationCorporate) count++;
-		if (form.LocationLenoirCity) count++;
-		if (form.LocationClarksville) count++;
-		if (form.LocationMaryville) count++;
-		if (form.LocationCookeville) count++;
-		if (form.LocationMtJuliet) count++;
-		if (form.LocationDickson) count++;
-		if (form.LocationWeisgarber) count++;
-		return count;
 	}
 
 	private int CountCheckedSpecialties()
