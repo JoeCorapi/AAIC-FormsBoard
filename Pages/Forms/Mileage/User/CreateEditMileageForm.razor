@@ -390,7 +390,7 @@
                     return;
                 }
 
-                if (existingForm.FormStatusId != FormState.Draft)
+                if (existingForm.FormStatusId != FormState.Draft || existingForm.FormStatusId != FormState.Rejected)
                 {
                     // Form is not in editable state - redirect with message
                     NavigationManager.NavigateTo("/forms/mileage/my?message=cannot-edit-submitted");

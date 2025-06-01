@@ -31,7 +31,8 @@ namespace FormsBoard.Data.Context
                 new FormStatus { Id = 2, Name = "Submitted", Description = "Form submitted for manager review" },
                 new FormStatus { Id = 3, Name = "Manager Approved", Description = "Approved by manager, awaiting accounting review" },
                 new FormStatus { Id = 4, Name = "Completed", Description = "Accounting approved and completed" },
-                new FormStatus { Id = 5, Name = "Discarded", Description = "Form has been discarded" }
+                new FormStatus { Id = 5, Name = "Rejected", Description = "Rejected for modifications" },
+                new FormStatus { Id = 6, Name = "Discarded", Description = "Form has been discarded" }
             );
         }
     }

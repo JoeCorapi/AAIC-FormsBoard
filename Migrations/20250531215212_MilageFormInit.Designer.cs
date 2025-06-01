@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FormsBoard.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250512030924_MileageFormPrototype")]
-    partial class MileageFormPrototype
+    [Migration("20250531215212_MilageFormInit")]
+    partial class MilageFormInit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -71,6 +71,12 @@ namespace FormsBoard.Migrations
                         new
                         {
                             Id = 5,
+                            Description = "Rejected for modifications",
+                            Name = "Rejected"
+                        },
+                        new
+                        {
+                            Id = 6,
                             Description = "Form has been discarded",
                             Name = "Discarded"
                         });

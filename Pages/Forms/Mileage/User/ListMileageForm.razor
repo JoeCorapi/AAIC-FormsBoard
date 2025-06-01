@@ -4,6 +4,8 @@
 @using Application.Interfaces
 @using Application.Services
 @inject IMileageService MileageService
+@inject IMailService MailService
+@inject IConfiguration Configuration
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 
@@ -58,7 +60,7 @@ else
                             <i class="oi oi-eye"></i> View
                         </a>
                         <span style="margin-left: 0.1em;"></span>
-                        @if (form.FormStatusId == FormState.Draft) // Draft
+                        @if (form.FormStatusId == FormState.Draft || form.FormStatusId == FormState.Rejected) // Draft or Rejected allow Edits/Submissions/Deletions
                         {
                             <a href="@($"forms/mileage/edit/{form.Id}")" class="btn btn-sm btn-primary">
                                 <i class="oi oi-pencil"></i> Edit
@@ -127,6 +129,7 @@ else
             FormState.Submitted => "badge badge-primary",
             FormState.ManagerApproved => "badge badge-info",
             FormState.Completed => "badge badge-success",
+            FormState.Rejected => "badge badge-warning",
             FormState.Discarded => "badge badge-danger",
             _ => "badge badge-light"
         };
@@ -135,7 +138,15 @@ else
     private async Task SubmitForm(int formId)
     {
         await MileageService.SubmitFormAsync(formId);
+
+        List<string> ApprovalManagersList = Configuration.GetSection("ApprovalManagersList").Get<List<string>>();
+        MailService.SendEmail($"New Milage Reimbursement Request: Form #{formId}",
+            $"Milage request #{formId} has been submitted for manager review.",
+            ApprovalManagersList);
+
         forms = await MileageService.GetUserFormsAsync(userId);
+
+
     }
 
     private void ConfirmDelete(int formId)

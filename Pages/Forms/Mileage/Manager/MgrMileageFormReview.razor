@@ -4,6 +4,8 @@
 @using Application.Services
 @using Application.Interfaces
 @inject IMileageService MileageService
+@inject IMailService MailService
+@inject IConfiguration Configuration
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 @*@attribute [Authorize(Roles = "ApprovalManagers")]*@
@@ -289,6 +291,13 @@ else
 	{
 		if (await MileageService.ManagerApproveAsync(form.Id, userId, userEmail, userDisplayName))
 		{
+			// Send email update
+			List<string> AcctApproversList = Configuration.GetSection("AcctApproversList").Get<List<string>>();
+			// Add user to manager approved list for updates
+			AcctApproversList.Append(form.UserEmail);
+
+			SendEmailUpdate(form.Id, "Manager Approved", "Form has been manager approved and pending accounting review", AcctApproversList);
+
 			pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted);
 			expandedFormId = null; // Collapse after action
 		}
@@ -317,11 +326,16 @@ else
 	{
 		if (selectedForm != null && !string.IsNullOrEmpty(rejectionReason))
 		{
-			await MileageService.ManagerRejectAsync(selectedForm.Id, userId, userDisplayName, rejectionReason);
-			showRejectDialog = false;
-			selectedForm = null;
-			rejectionReason = string.Empty;
-			pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted);
+			if (await MileageService.ManagerRejectAsync(selectedForm.Id, userId, userDisplayName, rejectionReason))
+			{
+				// Send email update
+				SendEmailUpdate(selectedForm.Id, "Rejected", rejectionReason, [selectedForm.UserEmail]);
+
+				showRejectDialog = false;
+				selectedForm = null;
+				rejectionReason = string.Empty;
+				pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted);
+			}
 		}
 	}
 
@@ -341,15 +355,29 @@ else
 
 	private async Task DiscardForm()
 	{
+
 		if (selectedForm != null && !string.IsNullOrEmpty(discardReason))
 		{
-			await MileageService.DiscardFormAsync(selectedForm.Id, userId, userDisplayName, discardReason);
-			showDiscardDialog = false;
-			selectedForm = null;
-			discardReason = string.Empty;
+			if (await MileageService.DiscardFormAsync(selectedForm.Id, userId, userDisplayName, discardReason))
+			{
 
-			// Refresh the list of pending forms
-			pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted);
+				// Send email update
+				SendEmailUpdate(selectedForm.Id, "Discarded", discardReason, [selectedForm.UserEmail]);
+
+				// Update UI and local vars
+				showDiscardDialog = false;
+				selectedForm = null;
+				discardReason = string.Empty;
+
+				// Refresh the list of pending forms
+				pendingForms = await MileageService.GetFormsByStatusAsync(FormState.Submitted);
+			}
 		}
+	}
+
+	private void SendEmailUpdate(int formId, string status, string reason, List<string> mailList)
+	{
+		MailService.SendEmail($"Mileage Form Status Change: Form #{formId} - {status}", 
+		$"Mileage form #{formId} has had status updated to {status}. <br /> {reason}", mailList);
 	}
 }

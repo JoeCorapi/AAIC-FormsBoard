@@ -7,13 +7,15 @@
         public const int Submitted = 2;
         public const int ManagerApproved = 3;
         public const int Completed = 4;
-        public const int Discarded = 5;
+        public const int Rejected = 5;
+        public const int Discarded = 6;
 
         // You can also include name constants if useful
         public const string DraftName = "Draft";
         public const string SubmittedName = "Submitted";
         public const string ManagerApprovedName = "Manager Approved";
         public const string CompletedName = "Completed";
+        public const string RejectedName = "Rejected";
         public const string DiscardedName = "Discarded";
 
         // Helper methods if needed
@@ -25,6 +27,7 @@
                 Submitted => SubmittedName,
                 ManagerApproved => ManagerApprovedName,
                 Completed => CompletedName,
+                Rejected => RejectedName,
                 Discarded => DiscardedName,
                 _ => "Unknown"
             };

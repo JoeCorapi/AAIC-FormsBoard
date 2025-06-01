@@ -68,6 +68,12 @@ namespace FormsBoard.Migrations
                         new
                         {
                             Id = 5,
+                            Description = "Rejected for modifications",
+                            Name = "Rejected"
+                        },
+                        new
+                        {
+                            Id = 6,
                             Description = "Form has been discarded",
                             Name = "Discarded"
                         });

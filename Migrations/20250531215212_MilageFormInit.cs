@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FormsBoard.Migrations
 {
     /// <inheritdoc />
-    public partial class MileageFormPrototype : Migration
+    public partial class MilageFormInit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -115,7 +115,8 @@ namespace FormsBoard.Migrations
                     { 2, "Form submitted for manager review", "Submitted" },
                     { 3, "Approved by manager, awaiting accounting review", "Manager Approved" },
                     { 4, "Accounting approved and completed", "Completed" },
-                    { 5, "Form has been discarded", "Discarded" }
+                    { 5, "Rejected for modifications", "Rejected" },
+                    { 6, "Form has been discarded", "Discarded" }
                 });
 
             migrationBuilder.CreateIndex(

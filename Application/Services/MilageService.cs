@@ -58,7 +58,7 @@ namespace FormsBoard.Application.Services
         {
             var form = await _repository.GetFormByIdAsync(formId);
 
-            if (form == null || form.FormStatusId != FormState.Draft) // Only drafts can be submitted
+            if (form == null || (form.FormStatusId != FormState.Draft && form.FormStatusId != FormState.Rejected)) // Only drafts and rejections can be submitted
                 return false;
 
             form.FormStatusId = FormState.Submitted; // Submitted
@@ -92,7 +92,7 @@ namespace FormsBoard.Application.Services
             if (form == null || form.FormStatusId != FormState.Submitted) // Only submitted forms can be rejected
                 return false;
 
-            form.FormStatusId = FormState.Draft; // Back to Draft
+            form.FormStatusId = FormState.Rejected; // Back to User
             form.RejectionReason = reason;
             form.RejectedBy = managerId;
             form.RejectedByName = managerName;
@@ -129,7 +129,7 @@ namespace FormsBoard.Application.Services
             if (form == null || form.FormStatusId != FormState.ManagerApproved) // Only manager-approved forms can be rejected by accounting
                 return false;
 
-            form.FormStatusId = FormState.Draft; // Back to Draft
+            form.FormStatusId = FormState.Rejected; // Back to User
             form.RejectionReason = reason;
             form.RejectedBy = accountantId;
             form.RejectedByName = accountantName;

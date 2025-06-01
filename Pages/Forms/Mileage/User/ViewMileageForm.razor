@@ -5,6 +5,8 @@
 @using FormsBoard.Application.Interfaces
 @using FormsBoard.Application.Services
 @inject IMileageService MileageService
+@inject IMailService MailService
+@inject IConfiguration Configuration
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 
@@ -267,7 +269,7 @@
 			<div class="card-footer text-center bg-light">
 				<div class="d-flex justify-content-between align-items-center">
 					<span>Form #@form.Id</span>
-					<span class="@GetStatusCssClass(form.Status.Name) px-3 py-2">
+					<span class="@GetStatusCssClass(form.Status.Id) px-3 py-2">
 						Status: @form.Status.Name
 					</span>
 					<span>Submitted: @form.DateSubmitted.ToShortDateString()</span>
@@ -277,7 +279,7 @@
 
 		<!-- Action buttons for managers/accounting if viewing their pending forms -->
 		@if ((isManager && form.FormStatusId == FormState.Submitted) ||
-				(isAccountingUser && form.FormStatusId == FormState.ManagerApproved))
+														(isAccountingUser && form.FormStatusId == FormState.ManagerApproved))
 		{
 			<div class="card mt-4 shadow-sm">
 				<div class="card-header bg-warning text-dark">
@@ -310,10 +312,10 @@
 			@if (showPrintButton)
 			{
 				<PrintButton Text="Print Form"
-							 Icon="print"
-							 ButtonStyle="ButtonStyle.Info"
-							 Class="ms-2"
-							 PrintElement="@formContent" />
+				Icon="print"
+				ButtonStyle="ButtonStyle.Info"
+				Class="ms-2"
+				PrintElement="@formContent" />
 			}
 		</div>
 	}
@@ -431,16 +433,16 @@
 		}
 	}
 
-	private string GetStatusCssClass(string status)
+	private string GetStatusCssClass(int state)
 	{
-		return status switch
+		return state switch
 		{
-			"Draft" => "badge badge-secondary",
-			"Submitted" => "badge badge-primary",
-			"Manager Approved" => "badge badge-info",
-			"Accounting Approved" => "badge badge-success",
-			"Paid" => "badge badge-dark",
-			"Discarded" => "badge badge-danger",
+			FormState.Draft => "badge badge-secondary",
+			FormState.Submitted => "badge badge-primary",
+			FormState.ManagerApproved => "badge badge-info",
+			FormState.Completed => "badge badge-success",
+			FormState.Rejected => "badge badge-warning",
+			FormState.Discarded => "badge badge-danger",
 			_ => "badge badge-light"
 		};
 	}
@@ -461,23 +463,77 @@
 		return count;
 	}
 
+
+	// Generic helper method for any form processing action =? Helps with ren
+	private async Task<bool> ProcessFormActionAsync(
+		Func<Task<bool>> serviceAction,           // The actual service call
+		string actionName,                        // For email subject
+		string actionReason,                 // For email body
+		List<string> emailRecipients,            // Who gets notified
+		string redirectUrl)                       // Where to go after success
+	{
+		try
+		{
+			// Step 1: Perform the service action (database update)
+			bool success = await serviceAction();
+
+			if (!success)
+			{
+				return false; // Let caller handle the failure
+			}
+
+			// Step 2: Capture data we need for email BEFORE any state changes
+			form = await MileageService.GetFormDetailsAsync(form.Id);
+
+			// Step 4: Send email notification (potentially triggering renders)
+			SendEmailUpdate(form.Id, actionName, actionReason, emailRecipients);
+
+			// Step 5: Update component state atomically
+			showRejectDialog = false;
+			showDiscardDialog = false; // Reset any other dialog states
+
+			// Step 6: Navigate away (this prevents any further rendering issues)
+			NavigationManager.NavigateTo(redirectUrl);
+
+			return true;
+		}
+		catch (Exception ex)
+		{
+			// Log the exception and let the UI handle the error gracefully
+			Console.WriteLine($"Error processing form action: {ex.Message}");
+			return false;
+		}
+	}
+
 	private async Task ApproveForm()
 	{
 		bool success = false;
 
 		if (isManager && form.FormStatusId == FormState.Submitted)
 		{
-			success = await MileageService.ManagerApproveAsync(form.Id, userId, userEmail, userDisplayName);
+			// Prepare accounting approvers list
+			List<string> acctApproversList = Configuration.GetSection("AcctApproversList").Get<List<string>>();
+			acctApproversList.Add(form.UserEmail); // Add submitter to notifications
+
+			success = await ProcessFormActionAsync(
+				serviceAction: () => MileageService.ManagerApproveAsync(form.Id, userId, userEmail, userDisplayName),
+				actionName: "Manager Approved",
+				actionReason: "Form has been manager approved and pending accounting review",
+				emailRecipients: acctApproversList,
+				redirectUrl: "/forms/mileage/managerReview"
+			);
 		}
 		else if (isAccountingUser && form.FormStatusId == FormState.ManagerApproved)
 		{
-			success = await MileageService.AccountingApproveAsync(form.Id, userId, userEmail, userDisplayName);
-		}
+			var emailRecipients = new List<string> { form.UserEmail, form.ManagerEmail };
 
-		if (success)
-		{
-			// Refresh the form data to show the updated status
-			form = await MileageService.GetFormDetailsAsync(FormId);
+			success = await ProcessFormActionAsync(
+				serviceAction: () => MileageService.AccountingApproveAsync(form.Id, userId, userEmail, userDisplayName),
+				actionName: "Completed",
+				actionReason: "Form has been completed approved for reimbursement.",
+				emailRecipients: emailRecipients,
+				redirectUrl: "/forms/mileage/accountingReview"
+			);
 		}
 	}
 
@@ -495,24 +551,42 @@
 
 	private async Task RejectForm()
 	{
-		if (!string.IsNullOrEmpty(rejectionReason))
+		if (string.IsNullOrEmpty(rejectionReason))
+			return;
+
+		bool success = false;
+
+		// Capture email recipients before any async operations
+		var emailRecipients = new List<string> { form.UserEmail };
+
+		if (isManager && form.FormStatusId == FormState.Submitted)
 		{
-			bool success = false;
+			success = await ProcessFormActionAsync(
+				serviceAction: () => MileageService.ManagerRejectAsync(form.Id, userId, userDisplayName, rejectionReason),
+				actionName: "Rejected",
+				actionReason: rejectionReason,
+				emailRecipients: emailRecipients,
+				redirectUrl: "/forms/mileage/managerReview"
+			);
+		}
+		else if (isAccountingUser && form.FormStatusId == FormState.ManagerApproved)
+		{
+			// Add manager to email list for accounting rejections
+			emailRecipients.Add(form.ManagerEmail);
 
-			if (isManager && form.FormStatusId == FormState.Submitted)
-			{
-				success = await MileageService.ManagerRejectAsync(form.Id, userId, userDisplayName, rejectionReason);
-			}
-			else if (isAccountingUser && form.FormStatusId == FormState.ManagerApproved)
-			{
-				success = await MileageService.AccountingRejectAsync(form.Id, userId, userDisplayName, rejectionReason);
-			}
+			success = await ProcessFormActionAsync(
+				serviceAction: () => MileageService.AccountingRejectAsync(form.Id, userId, userDisplayName, rejectionReason),
+				actionName: "Rejected",
+				actionReason: rejectionReason,
+				emailRecipients: emailRecipients,
+				redirectUrl: "/forms/mileage/accountingReview"
+			);
+		}
 
-			if (success)
-			{
-				showRejectDialog = false;
-				form = await MileageService.GetFormDetailsAsync(FormId);
-			}
+		if (!success)
+		{
+			// Handle error case - maybe show an error message to user
+			// The dialog remains open so they can try again
 		}
 	}
 
@@ -528,18 +602,33 @@
 		discardReason = "";
 	}
 
+
 	private async Task DiscardForm()
 	{
 		if (!string.IsNullOrEmpty(discardReason))
 		{
 			bool success = await MileageService.DiscardFormAsync(form.Id, userId, userDisplayName, discardReason);
 
+
+			int formId = form.Id;
+			string userEmail = form.UserEmail;
+
 			if (success)
 			{
-				showDiscardDialog = false;
 				form = await MileageService.GetFormDetailsAsync(FormId);
+
+				// Send Email update
+				SendEmailUpdate(formId, "Discarded", discardReason, [userEmail]);
+
+				showDiscardDialog = false;
 			}
 		}
+	}
+
+	private void SendEmailUpdate(int formId, string status, string reason, List<string> mailList)
+	{
+		MailService.SendEmail($"Mileage Form Status Change: Form #{formId} - {status}",
+		$"Mileage form #{formId} has had status updated to {status}. <br /> {reason}", mailList);
 	}
 }
 
