@@ -1,0 +1,95 @@
+﻿@page "/debug"
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h3>Current User Authorization Debug Information</h3>
+
+@if (currentUser != null && currentUser.Identity?.IsAuthenticated == true)
+{
+	<div class="p-4 border rounded mb-4">
+		<h4>User Identity Information</h4>
+		<p>Username: @currentUser.Identity?.Name</p>
+	</div>
+
+	<div class="p-4 border rounded mb-4">
+		<h4>Groups and Roles</h4>
+		@if (groupClaims.Any())
+		{
+			<div class="mb-2">
+				<strong>Groups from Claims:</strong>
+				@foreach (var group in groupClaims)
+				{
+					<div class="ml-4">• @group</div>
+				}
+			</div>
+		}
+		else
+		{
+			<p class="text-warning">No group claims found. Check Azure AD configuration.</p>
+		}
+
+		@if (roleClaims.Any())
+		{
+			<div class="mt-2">
+				<strong>Roles from Claims:</strong>
+				@foreach (var role in roleClaims)
+				{
+					<div class="ml-4">• @role</div>
+				}
+			</div>
+		}
+	</div>
+
+	<div class="p-4 border rounded">
+		<h4>All Claims (Debug View)</h4>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Claim Type</th>
+					<th>Value</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var claim in currentUser.Claims)
+				{
+					<tr>
+						<td>@claim.Type</td>
+						<td>@claim.Value</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}
+else
+{
+	<p class="text-warning">User is not authenticated</p>
+}
+
+@code {
+	private ClaimsPrincipal currentUser;
+	private IEnumerable<string> groupClaims = Enumerable.Empty<string>();
+	private IEnumerable<string> roleClaims = Enumerable.Empty<string>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		// Get the current authentication state
+		var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+		currentUser = authState.User;
+
+		if (currentUser.Identity.IsAuthenticated)
+		{
+			// Get groups - these might come through as "groups" claims from Azure AD
+			groupClaims = currentUser.Claims
+				.Where(c => c.Type == "groups" || c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/groups")
+				.Select(c => c.Value)
+				.ToList();
+
+			// Get roles - these might be mapped from groups or come through as role claims
+			roleClaims = currentUser.Claims
+				.Where(c => c.Type == ClaimTypes.Role)
+				.Select(c => c.Value)
+				.ToList();
+		}
+	}
+}
